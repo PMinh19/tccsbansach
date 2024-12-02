@@ -10,5 +10,6 @@
         public DateTime Updated { get; set; }
         public Product Product { get; set; }
         public bool IsCheckedOut { get; set; }
+        public bool IsSelected { get; set; }
     }
 }

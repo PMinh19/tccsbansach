@@ -1,6 +1,6 @@
 ﻿@page "/register"
-@inject IAuthService AuthService
-@using BanSach.Components.Model
+ @inject IAuthService AuthService
+ @using BanSach.Components.Model
 
 <PageTitle>Đăng kí</PageTitle>
 <h3>Register</h3>
@@ -8,7 +8,7 @@
     <DataAnnotationsValidator />
     <div class="mb-3">
         <label for="email">Email</label>
-        <InputText id="email" @bind-Value="user.Email" class="form-control" type="email"/>
+        <InputText id="email" @bind-Value="user.Email" class="form-control" type="email" />
         <ValidationMessage For="(() => user.Email)" />
     </div>
     <div class="mb-3">
@@ -44,6 +44,7 @@
         message = result.Message;
         if (result.Success)
             messageCssClass = "text-success";
+
         else
             messageCssClass = "text-danger";
     }

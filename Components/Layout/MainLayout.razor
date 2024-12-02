@@ -1,0 +1,159 @@
+﻿@inherits LayoutComponentBase
+@inject ILocalStorageService LocalStorage
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+
+<CascadingAuthenticationState>
+    <MudThemeProvider Theme="@_theme" IsDarkMode="_isDarkMode" @rendermode="InteractiveServer" />
+    <MudPopoverProvider @rendermode="InteractiveServer" />
+    <MudDialogProvider @rendermode="InteractiveServer" />
+    <MudSnackbarProvider @rendermode="InteractiveServer" />
+    <MudLayout>
+        <!-- Thanh AppBar của MainLayout -->
+        <MudAppBar Elevation="1">
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+            <MudText Typo="Typo.h5" Class="ml-3">
+                <a href="/" style="text-decoration: none; color: inherit;">WebBookApp</a>
+            </MudText>
+            <MudSpacer />
+            <!-- Bắt đầu phần AppBar từ Home.razor -->
+            <MudTextField T="string" Icon="@Icons.Material.Filled.Search" Placeholder="Tìm kiếm..."
+                          Style=" margin: 0 10px;" />
+            <MudSpacer />
+            <MudText Class="ml-4">
+                <MudLink Href="/qna" Class="mud-link">Hỏi Đáp</MudLink>
+            </MudText>
+            <MudIconButton Icon="@Icons.Material.Filled.ShoppingCart" Href="/cart" />
+            <AuthorizeView>
+                <Authorized>
+                    <MudMenu Icon="@Icons.Material.Filled.AccountCircle"
+                             AriaLabel="Open user menu">
+                             
+                        <a href="/profile" class="dropdown-item">Hồ sơ </a>
+                        <hr />
+                        <a href="/orders" class="dropdown-item">Hóa đơn</a> 
+                        <hr />
+                        <button @onclick="Logout">Đăng xuất</button>
+                    </MudMenu>
+                </Authorized>
+                <NotAuthorized>
+                    <MudMenu Icon="@Icons.Material.Filled.AccountCircle"
+                             AriaLabel="Open user menu">
+                        <a href="/profile" class="dropdown-item">Hồ sơ</a>
+                        <hr />
+                        <a href="login?returnUrl=@NavigationManager.ToBaseRelativePath(NavigationManager.Uri)" class="dropdown-item">Đăng nhập</a>
+                        <hr/>
+                        <a href="/register" class="dropdown-item">Đăng kí</a>
+                       
+                    </MudMenu>
+                </NotAuthorized>
+            </AuthorizeView>
+            <!-- Nút chuyển đổi chế độ sáng/tối -->
+            <MudIconButton Icon="@DarkLightModeButtonIcon" Color="Color.Inherit" OnClick="@DarkModeToggle" />
+            <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
+        </MudAppBar>
+
+        <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+            <NavMenu />
+        </MudDrawer>
+        <MudMainContent>
+            @Body
+        </MudMainContent>
+    </MudLayout>
+</CascadingAuthenticationState>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+<link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+
+@code {
+    private bool _drawerOpen = true;
+    private bool _isDarkMode = true;
+    private MudTheme? _theme = null;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _theme = new()
+            {
+                PaletteLight = _lightPalette,
+                PaletteDark = _darkPalette,
+                LayoutProperties = new LayoutProperties()
+            };
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Xử lý hoàn thành prerendering và khởi tạo trạng thái xác thực
+            ((CustomAuthStateProvider)AuthenticationStateProvider).NotifyPrerenderCompleted();
+            ((CustomAuthStateProvider)AuthenticationStateProvider).InitializeAuthenticationStateAsync();
+        }
+    }
+    private void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    private void DarkModeToggle()
+    {
+        _isDarkMode = !_isDarkMode;
+    }
+
+    private readonly PaletteLight _lightPalette = new()
+        {
+            Black = "#110e2d",
+            AppbarText = "#424242",
+            AppbarBackground = "rgba(255,255,255,0.8)",
+            DrawerBackground = "#ffffff",
+            GrayLight = "#e8e8e8",
+            GrayLighter = "#f9f9f9",
+        };
+
+    private readonly PaletteDark _darkPalette = new()
+        {
+            Primary = "#7e6fff",
+            Surface = "#1e1e2d",
+            Background = "#1a1a27",
+            BackgroundGray = "#151521",
+            AppbarText = "#92929f",
+            AppbarBackground = "rgba(26,26,39,0.8)",
+            DrawerBackground = "#1a1a27",
+            ActionDefault = "#74718e",
+            ActionDisabled = "#9999994d",
+            ActionDisabledBackground = "#605f6d4d",
+            TextPrimary = "#b2b0bf",
+            TextSecondary = "#92929f",
+            TextDisabled = "#ffffff33",
+            DrawerIcon = "#92929f",
+            DrawerText = "#92929f",
+            GrayLight = "#2a2833",
+            GrayLighter = "#1e1e2d",
+            Info = "#4a86ff",
+            Success = "#3dcb6c",
+            Warning = "#ffb545",
+            Error = "#ff3f5f",
+            LinesDefault = "#33323e",
+            TableLines = "#33323e",
+            Divider = "#292838",
+            OverlayLight = "#1e1e2d80",
+        };
+
+    public string DarkLightModeButtonIcon => _isDarkMode switch
+    {
+        true => Icons.Material.Rounded.AutoMode,
+        false => Icons.Material.Outlined.DarkMode,
+    };
+
+    private async Task Logout()
+    {
+        await LocalStorage.RemoveItemAsync("authToken");
+        ((CustomAuthStateProvider)AuthenticationStateProvider).InitializeAuthenticationStateAsync();
+        StateHasChanged();
+        NavigationManager.NavigateTo("/login");
+    }
+}

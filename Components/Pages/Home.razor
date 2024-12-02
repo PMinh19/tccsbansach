@@ -1,0 +1,133 @@
+﻿@page "/"
+@using BanSach.Components.Model
+@using MudBlazor
+@using System.Data
+@using System.Diagnostics.Metrics
+@using BanSach.Components.IService
+@using System.Globalization
+@using BanSach.Components.Services
+@inject IDialogService DialogService
+@inject NavigationManager navigationManager
+@inject IItemManagement ItemManagement
+@inject HttpClient httpClient
+@rendermode InteractiveServer
+@inject IDialogService DialogService
+<PageTitle>Home</PageTitle>
+<MudContainer MaxWidth="MaxWidth.Large" Class="pa-0">
+    <!-- Ảnh nổi bật -->
+    <div style="display: flex; justify-content: center; width: 100%; margin-top: 20px;">
+        <MudCarousel TData="string" Interval="4000" style="height:300px; width:100%;display: flex; justify-content: center;">
+            <MudCarouselItem>
+                <img src="@img?.Img1" alt="Product 1" style="width:100%; height: 100%; object-fit: cover; filter: grayscale(0.3);" />
+                <MudCarouselItemText Style="background-color: rgba(51, 51, 51, 0.7); color: #EAEAEA;">Product 1</MudCarouselItemText>
+            </MudCarouselItem>
+            <MudCarouselItem>
+                <img src="@img?.Img2" alt="Product 2" style="width:100%; height: 100%; object-fit: cover; filter: grayscale(0.3);" />
+                <MudCarouselItemText Style="background-color: rgba(51, 51, 51, 0.7); color: #EAEAEA;">Product 2</MudCarouselItemText>
+            </MudCarouselItem>
+            <MudCarouselItem>
+                <img src="@img?.Img3" alt="Product 3" style="width:100%; height: 100%; object-fit: cover; filter: grayscale(0.3);" />
+                <MudCarouselItemText Style="background-color: rgba(51, 51, 51, 0.7); color: #EAEAEA;">Product 3</MudCarouselItemText>
+            </MudCarouselItem>
+            <MudCarouselItem>
+                <img src="@img?.Img4" alt="Product 4" style="width:100%; height: 100%; object-fit: cover; filter: grayscale(0.3);" />
+                <MudCarouselItemText Style="background-color: rgba(51, 51, 51, 0.7); color: #EAEAEA;">Product 3</MudCarouselItemText>
+            </MudCarouselItem>
+        </MudCarousel>
+    </div>
+    <MudGrid Class="pt-2">
+
+        <MudItem>
+            <MudCard>
+                <MudCardContent>
+                    @if (products != null && products.Any())
+                    {
+                        <MudGrid Mode="GridMode.Flex" Class="anh" Style="display:flex;">
+                            @foreach (var item in products)
+                            {
+                                <MudItem sm="4" md="2" xs="6" Style="margin: 10px;">
+                                    <Button Class="button" @onclick="() => Detail(item.ProductId)" Style="width: 100%;">
+                                        <div><img ObjectFit="ObjectFit.Cover" Src="@item.Img" Height="200" Class="rounded-lg" /></div>
+                                        <div style="width: 100%; overflow: hidden; white-space: nowrap;">
+                                            @item.ProductName
+                                        </div>
+                                        <div>@string.Format(new CultureInfo("vi-VN"), "{0:N0}", item.SellPrice) vnđ </div>
+                                    </Button>
+                                </MudItem>
+                            }
+                        </MudGrid>
+
+                    }
+                    else
+                    {
+                        <MudText>No products available.</MudText>
+                    }
+                    <MudScrollToTop TopOffset="100" Selector="#another_unique_identifier" Style="z-index:2001;">
+                        <div class="mud-theme-secondary px-3 py-6 mud-elevation-16 rounded-xl fixed" style="bottom:20px;left:20px;">Scroll to top custom button</div>
+                    </MudScrollToTop>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+    <!-- Footer Section -->
+    <MudPaper Class="pa-4 mt-4" Style="text-align: center; padding: 10px;">
+        <MudText Class="mud-typography-body2">Liên hệ: contact@webbookapp.com</MudText>
+        <MudText Class="mud-typography-body2">Điện thoại: 0123-456-789</MudText>
+        <MudText Class="mud-typography-body2">Địa chỉ: số 141, Chiến Thắng, Thanh Trì, Hà Nội</MudText>
+    </MudPaper>
+
+</MudContainer>
+<style>
+    .button {
+        margin: 10px 0 0 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-family: Arial;
+        font-weight: bold;
+    }
+
+        .button:hover {
+            transform: scale(1.05);
+        }
+</style>
+@code {
+    private List<Product> products = new List<Product>();
+    private Product product = new Product();
+    private Img img = new Img();
+    private int imgId;
+    private Category category = new Category();
+    private List<Category> categories = new List<Category>();
+    private async Task<List<Product>> getAllSach() => await ItemManagement.GetAllItem();
+    private string searchString1 = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Khởi tạo danh sách nếu các dịch vụ trả về null
+        products = await getAllSach();
+        if (products == null)
+        {
+            products = new List<Product>();
+        }
+
+        categories = await ItemManagement.GetAllCategogy();
+        if (categories == null)
+        {
+            categories = new List<Category>();
+        }
+
+        img = await ItemManagement.GetLastImgAsync();
+        if (img == null)
+        {
+            img = new Img();
+        }
+    }
+    private void Detail(int productId)
+    {
+        navigationManager.NavigateTo($"/Detail/{productId}");
+    }
+    private void Test()
+    {
+        navigationManager.NavigateTo("/test");
+    }
+}

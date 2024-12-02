@@ -1,0 +1,164 @@
+﻿@page "/cart"
+@using System.Security.Claims
+@using BanSach.Components.Model
+@using BanSach.Components.Services
+@using BanSach.Components.IService
+@using Microsoft.AspNetCore.Http
+@using System.Globalization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IWebHostEnvironment Environment
+@inject HttpClient httpClient
+@inject NavigationManager navigationManager
+@inject IItemManagement ItemManagement
+@rendermode InteractiveServer
+@inject IDialogService DialogService
+@inject ICartService CartService
+
+<MudGrid Class="pt-2">
+    <MudItem xs="12" sm="12">
+        @if (product_carts != null && product_carts.Any())
+        {
+            @foreach (var cartItem in product_carts)
+            {
+                <MudGrid>
+                    <MudItem xs="0" sm="1" md="1"></MudItem>
+                    <MudItem xs="4" sm="4" md="4">
+                        <MudImage ObjectFit="ObjectFit.Cover" Width="150" Height="150" Src="@cartItem.Product.Img" Class="rounded-lg" />
+                    </MudItem>
+                    <MudItem md="8" sm="8" xs="8">
+                        <div style="padding: 30px">
+                            <MudGrid style="display: flex; flex-direction: column;">
+                                <MudGrid>
+                                    <MudItem Class="pt-1">
+                                        <div style="font-weight:bold; padding-top: 10px">@cartItem.Product.ProductName</div>
+                                    </MudItem>
+                                </MudGrid>
+                            </MudGrid>
+                            <MudItem Class="pt-1"><div style=" font-weight:bold">@string.Format(new CultureInfo("vi-VN"), "{0:N0}", cartItem.Product.SellPrice) vnđ </div></MudItem>
+                            <MudItem>
+                                <div style="display: flex; align-items: center;">
+                                    Số lượng:
+                                    <MudNumericField T="int" @bind-Value="@cartItem.Quantity" Min="1" Style="margin-left: 10px; width: 50px;" />
+                                </div>
+                            </MudItem>
+                        </div>
+                    </MudItem>
+                    <MudItem Class="pt-2">
+                        <MudButton Color="Color.Error" Variant="Variant.Filled" @onclick="() => RemoveFromCart(cartItem)">
+                            Xóa
+                        </MudButton>
+                    </MudItem>
+                </MudGrid>
+            }
+
+            <MudItem xs="12" sm="12" md="12" Class="pt-4">
+                <MudButton Class="pt-1" style="padding:10px" ButtonType="ButtonType.Submit" Variant="Variant.Filled" @onclick="HandleBuyNow">Mua hàng</MudButton>
+            </MudItem>
+        }
+        else
+        {
+            <MudText Color="Color.Error">Giỏ hàng trống.</MudText>
+        }
+    </MudItem>
+</MudGrid>
+
+@code {
+    private List<Product_cart> product_carts = new List<Product_cart>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            product_carts = await GetAllProductCart();
+        }
+        catch (Exception ex)
+        {
+            DialogService.ShowMessageBox("Lỗi", $"Không thể tải giỏ hàng: {ex.Message}");
+        }
+    }
+
+    private async Task<List<Product_cart>> GetAllProductCart()
+    {
+        var carts = await CartService.GetAllPCart();
+        if (carts == null || !carts.Any())
+        {
+            return new List<Product_cart>();
+        }
+        return carts;
+    }
+
+    private async Task HandleBuyNow()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user == null || !user.Identity.IsAuthenticated)
+        {
+            DialogService.ShowMessageBox("Lỗi", "Vui lòng đăng nhập để tiếp tục.");
+            return;
+        }
+
+        var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
+        if (userIdClaim == null)
+        {
+            DialogService.ShowMessageBox("Lỗi", "Không thể xác định người dùng.");
+            return;
+        }
+        int userId = int.Parse(userIdClaim.Value);
+
+        // Tính tổng số lượng và tổng tiền
+        int totalQuantity = 0;
+        decimal totalPrice = 0; // Đảm bảo totalPrice là kiểu decimal
+
+        foreach (var cartItem in product_carts)
+        {
+            totalQuantity += cartItem.Quantity;  // Tổng số lượng sản phẩm
+            totalPrice += cartItem.Quantity * cartItem.Product.SellPrice;  // Tổng tiền của các sản phẩm
+        }
+
+        // Tạo hóa đơn cho tất cả các sản phẩm trong giỏ hàng
+        var productBill = new Product_bill
+            {
+                FeaturePId = product_carts[0].ProductId,  // Lấy ProductId từ sản phẩm đầu tiên
+                Price = totalPrice,  // Tổng giá trị của giỏ hàng
+                Quantity = totalQuantity,  // Tổng số lượng sản phẩm
+                Created = DateTime.Now,
+                Updated = DateTime.Now,
+            };
+
+        // Kiểm tra giá trị đã được gán đúng chưa
+        Console.WriteLine($"ProductBill - FeaturePId: {productBill.FeaturePId}, Price: {productBill.Price}, Quantity: {productBill.Quantity}");
+
+        var productBillResult = await CartService.PlaceProductBill(productBill);
+
+        if (productBillResult != null)
+        {
+            Console.WriteLine($"Hóa đơn thành công! ID: {productBillResult.ProductBillId}");
+            navigationManager.NavigateTo($"/invoice/{productBillResult.ProductBillId}");
+        }
+        else
+        {
+            DialogService.ShowMessageBox("Lỗi", "Đặt hàng không thành công. Vui lòng thử lại.");
+        }
+    }
+    private async Task RemoveFromCart(Product_cart cartItem)
+    {
+        try
+        {
+            // Gọi phương thức xóa sản phẩm khỏi giỏ hàng
+            await CartService.DeletePCart(cartItem);
+
+            // Cập nhật lại danh sách giỏ hàng sau khi xóa
+            product_carts = await GetAllProductCart();
+
+            // Hiển thị thông báo thành công
+            DialogService.ShowMessageBox("Thành công", "Sản phẩm đã được xóa khỏi giỏ hàng.");
+        }
+        catch (Exception ex)
+        {
+            // Hiển thị lỗi nếu có
+            DialogService.ShowMessageBox("Lỗi", $"Không thể xóa sản phẩm: {ex.Message}");
+        }
+    }
+
+}

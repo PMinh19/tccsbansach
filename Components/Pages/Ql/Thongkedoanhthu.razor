@@ -1,0 +1,118 @@
+﻿@page "/doanhthu"
+@using System.Globalization
+@using System.Data
+@using BanSach.Components.Data
+@using BanSach.Components.Model
+@using BanSach.Components.IService
+@using BanSach.Components.Services
+
+@inject IConfiguration _config
+@inject IUserService UserService
+@inject IBillService BillService
+<div style="display: flex; justify-content: center; padding: 30px;">
+    <h2 style="font-family: Arial;">Thống kê doanh thu</h2>
+</div>
+<div style="font-size:15px">
+    <div class="d-flex justify-space-between align-center pa-8">
+        <MudPaper Class="pa-16 ma-2" Elevation="1">Người dùng: @users.Count</MudPaper>
+        <MudPaper Class="pa-16 ma-2" Elevation="3">Đơn hàng: @bills.Count</MudPaper>
+        <MudPaper Class="pa-16 ma-2" Elevation="3">Doanh số: @bills.Count</MudPaper>
+        <MudPaper Class="pa-16 ma-2" Elevation="3">Doanh thu:</MudPaper>
+    </div>
+    </div>
+
+    <div Class="py-2 px-2 mt-2">
+        <MudGrid Justify="Justify.FlexStart" Spacing="1">
+            <MudItem xs="6" sm="3" lg="2">
+                <MudDatePicker Label="Từ ngày" Margin="Margin.Dense" Culture="@GetVietNamCulture()" @bind-Date="fromDate" Variant="Variant.Outlined" Color="Color.Success" />
+            </MudItem>
+            <MudItem xs="6" sm="3" lg="2">
+                <MudDatePicker Label="Đến ngày" Margin="Margin.Dense" Culture="@GetVietNamCulture()" @bind-Date="toDate" Variant="Variant.Outlined" Color="Color.Secondary" />
+            </MudItem>
+            <MudHidden Breakpoint="Breakpoint.LgAndDown">
+                <MudItem xs="6">
+                    <MudSpacer></MudSpacer>
+                </MudItem>
+            </MudHidden>
+            <MudMenu Label="Trạng thái" Color="Color.Primary" Class="px-4">
+                <MudMenuItem>Đang chuẩn bị hàng</MudMenuItem>
+                <MudMenuItem>Đang giao</MudMenuItem>
+                <MudMenuItem>Đã giao</MudMenuItem>
+            </MudMenu>
+            <MudItem>
+                <MudButton Variant="Variant.Filled" FullWidth  Class="px-4" StartIcon="@Icons.Material.Filled.Search" Color="Color.Primary">Tìm kiếm</MudButton>
+            </MudItem>
+        </MudGrid>
+         <MudMenu Class="d-block" LockScroll="true" PositionAtCursor="true" ActivationEvent="MouseEvent.RightClick">
+            <ActivatorContent>
+                <MudTable Dense="true" Class="mt-3" Bordered Height="465px"
+                          ReadOnly="false" HeaderClass="pa-1" Items="dt.Select()"
+                          T="DataRow" MultiSelection="false" RowClass="pa-0 cursor-pointer" Hover="true" Breakpoint="Breakpoint.None"
+                          @bind-SelectedItem="@selectedItem" HorizontalScrollbar="true">
+                   
+                    <HeaderContent>
+                        <MudTh Style=" text-align:center"> Đối tượng </MudTh>
+                        <MudTh Style="text-align:center"> Tổng tiền </MudTh>
+                        <MudTh Style="text-align:center"> Trạng thái </MudTh>
+                        <MudTh Style="text-align:center"> Ngày </MudTh>
+                       
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Dối tượng" Style=" min-width: 50vw; text-align:left; position: sticky; left: 0; z-index: 1; background-color: white;">
+                            @context["Tenkhachhang"].ToString()
+                        </MudTd>
+                        <MudTd Style="text-align:right; " DataLabel="Tổng tiền" >@(string.IsNullOrEmpty(context["Sotien"].ToString()) ? "0" : Convert.ToDecimal(context["Sotien"]).ToString("#,##0"))</MudTd>
+                        <MudTd DataLabel="Trạng thái thanh toán">@context["Soctkt"].ToString()</MudTd>
+                        <MudTd DataLabel="Ngày đặt">@(DateTime.Parse(context["Ngayctkt"].ToString()).ToString("dd/MM/yyyy"))</MudTd>
+                        
+                    </RowTemplate>
+                </MudTable>
+
+            </ActivatorContent>
+        </MudMenu> 
+    </div>
+
+@code {
+    private Role role = new();
+    private List<Bill> bills = new();
+    private User user = new();
+    private List<User> users = new();
+    DateTime? fromDate = DateTime.Today;
+    DateTime? toDate = DateTime.Today;
+    private bool _loading = false;
+    int selectedRowNumber = -1;
+    DataRow? selectedItem;
+    private DataTable dt = new DataTable();
+
+    public CultureInfo GetVietNamCulture()
+    {
+        var culture = new CultureInfo("vi-VN");
+        DateTimeFormatInfo formatInfo = culture.DateTimeFormat;
+        formatInfo.AbbreviatedDayNames = new[] { "T2", "T3", "T4", "T5", "T6", "T7", "CN" };
+        formatInfo.DayNames = new[] { "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật" };
+        var monthNames = new[]
+        {"Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12", "",};
+        formatInfo.AbbreviatedMonthNames = formatInfo.AbbreviatedMonthGenitiveNames = formatInfo.MonthNames = monthNames;
+        formatInfo.ShortDatePattern = "dd/MM/yyyy";
+        formatInfo.LongDatePattern = "dddd, dd/MMMM/yyyy";
+        formatInfo.FirstDayOfWeek = DayOfWeek.Sunday;
+        DB.Set_Connect(_config?.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Không tồn tại chuỗi kết nối 'Default Connection'."));
+        return culture;
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        users = await UserService.GetAllUser();
+        bills = await BillService.GetAllBill();
+    }
+
+    // public void Timkiem()
+    // {
+    //     _loading = true;
+    //     DB.Set_Connect(_config?.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Không tồn tại chuỗi kết nối 'Default Connection'."));
+    //     dt = DB.GetOrderbyDate( fromDate ?? DateTime.Today, toDate ?? DateTime.Today);
+
+    //     _loading = false;
+    //     CultureInfo culture = CultureInfo.GetCultureInfo("vi-VN");
+    //     StateHasChanged();
+    // }
+}

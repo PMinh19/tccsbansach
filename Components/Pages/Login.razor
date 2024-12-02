@@ -1,0 +1,76 @@
+﻿@page "/login"
+@using Microsoft.AspNetCore.WebUtilities
+@inject IAuthService AuthService
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager NavigationManager
+@using BanSach.Components.Model
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using BanSach.Components.IService
+@inject ICartService CartService
+<PageTitle>Login</PageTitle>
+
+<h3>Đăng nhập</h3>
+
+<EditForm Model="user" OnValidSubmit="HandleLogin" >
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="email">Email</label>
+        <InputText id="email" @bind-Value="user.Email" class="form-control" type ="email" />
+        <ValidationMessage For="@(() => user.Email)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="password">Password</label>
+        <InputText id="password" @bind-Value="user.Password" class="form-control" type="password" />
+        <ValidationMessage For="@(() => user.Password)" />
+    </div>
+    <button type="submit" >Login</button>
+
+    <div class="text-danger">
+        <span>@errorMessage</span>
+    </div>
+    <div class="form-link">
+        <label>Don't have an account?</label>
+        <NavLink class="form-forgot" href="/register" style="cursor:pointer">Register</NavLink><br />
+    </div>
+
+    <div>
+        <span>or</span><br />
+        <NavLink class="form-forgot" href="/LoginwithFacebook" style="cursor:pointer">Login with Facebook</NavLink><br />
+    </div>
+</EditForm>
+
+@code {
+    private UserLogin user = new UserLogin();
+    private string errorMessage = string.Empty;
+    private string returnUrl = string.Empty;
+    protected override void OnInitialized()
+    {
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        if(QueryHelpers.ParseQuery(uri.Query).TryGetValue("returnUrl", out var url))
+        {
+            returnUrl = url;
+        }
+    }
+    private async Task HandleLogin()
+    {
+        var result = await AuthService.Login(user.Email, user.Password);
+        if (result.Success)
+        {
+            errorMessage = string.Empty;
+
+            await LocalStorage.SetItemAsync("authToken", result.Data);
+            await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            
+            StateHasChanged();
+            NavigationManager.NavigateTo(returnUrl);
+        }
+        else
+        {
+            errorMessage = result.Message;
+        }
+    }
+
+}

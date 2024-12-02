@@ -1,0 +1,120 @@
+﻿@page "/noibat"
+@using BanSach.Components.Model
+@using BanSach.Components.Services
+@using BanSach.Components.IService
+@using Microsoft.AspNetCore.Http
+@using System.IO
+@inject IWebHostEnvironment Environment
+@inject NavigationManager navigationManager
+@inject IItemManagement ItemManagement
+@inject HttpClient httpClient
+@rendermode InteractiveServer
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+<div style="margin:20px">
+    <h2>Ảnh nổi bật</h2>
+</div>
+
+<MudGrid Style="margin: 20px 0">
+    <MudItem xs="6" sm="6" md="6">
+        @if (!string.IsNullOrEmpty(img.Img1))
+        {
+            <MudItem xs="12">
+                <MudText >Ảnh 1:</MudText>
+                <img src="@img.Img1" alt="Product Image" Height="200" width="400" Class="rounded-lg" />
+            </MudItem>
+        }
+    </MudItem>
+    <MudItem xs="6" sm="6" md="6">
+        @if (!string.IsNullOrEmpty(img.Img2))
+        {
+            <MudItem xs="12">
+                <MudText >Ảnh 2:</MudText>
+                <img src="@img.Img2" alt="Product Image" Height="200" width="400" Class="rounded-lg" />
+            </MudItem>
+        }
+    </MudItem>
+    <MudItem xs="6" sm="6" md="6">
+        @if (!string.IsNullOrEmpty(img.Img3))
+        {
+            <MudItem xs="12">
+                <MudText >Ảnh 3:</MudText>
+                <img src="@img.Img3" alt="Product Image" Height="200" width="400" Class="rounded-lg" />
+            </MudItem>
+        }
+    </MudItem>
+    <MudItem xs="6" sm="6" md="6">
+        @if (!string.IsNullOrEmpty(img.Img4))
+        {
+            <MudItem xs="12">
+                <MudText >Ảnh 4:</MudText>
+                <img src="@img.Img4" alt="Product Image" Height="200" width="400" Class="rounded-lg" />
+            </MudItem>
+        }
+    </MudItem>
+    <MudGrid>
+        <MudItem xs="12">
+            <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
+                <ActivatorContent>
+                    <MudFab Color="Color.Primary"
+                            StartIcon="@Icons.Material.Filled.Image"
+                            Label="Load picture" />
+                </ActivatorContent>
+            </MudFileUpload>
+        </MudItem>
+
+    @*     @if (!string.IsNullOrEmpty(product.Img))
+        {
+            <MudItem xs="12">
+                <MudText Typo="@Typo.h6">Xem trước ảnh:</MudText>
+                <img src="@product.Img" alt="Preview" width="180" Height="200" Class="rounded-lg" />
+            </MudItem>
+        } *@
+    </MudGrid>
+</MudGrid>
+
+@code {
+    private Product product = new Product();
+    private Img img = new Img();
+    private string? imageDirectory;
+    private List<Img> imgs = new List<Img>();
+    protected override async Task OnInitializedAsync()
+    {
+        imageDirectory = Path.Combine(Environment.WebRootPath, "images");
+        try
+        {
+            img = await ItemManagement.GetLastImgAsync();
+           
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine("Lỗi trong OnInitializedAsync: " + ex.Message);
+        }
+    }
+    private IList<IBrowserFile> _files = new List<IBrowserFile>();
+
+    // Đường dẫn thư mục lưu ảnh
+
+    // Phương thức tải lên ảnh
+    private async Task UploadFiles(IBrowserFile file)
+    {
+        // Kiểm tra nếu thư mục 'images' không tồn tại thì tạo mới
+        if (!Directory.Exists(imageDirectory))
+        {
+            Directory.CreateDirectory(imageDirectory);
+        }
+
+        // Tạo tên file duy nhất
+        string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.Name);
+        string filePath = Path.Combine(imageDirectory, fileName);
+
+        // Lưu file vào thư mục
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await file.OpenReadStream().CopyToAsync(stream);
+        }
+
+        // Cập nhật đường dẫn file vào database hoặc object
+        product.Img = "/images/" + fileName;
+    }
+}

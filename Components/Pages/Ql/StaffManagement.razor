@@ -8,24 +8,27 @@
 @inject NavigationManager navigationManager
 @inject HttpClient httpClient
 
-<div style="display: flex; justify-content: center; padding: 30px;">
-    <h2 style="font-family: Arial;">Quản lý tài khoản nhân viên</h2>
+<div style="display:flex; padding: 30px 30px 0 30px;">
+    <h2 style="font-family:Arial;">Quản lí nhân viên </h2>
+    <MudSpacer></MudSpacer>
+    <MudButton OnClick="Add" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Thêm</MudButton>
+
 </div>
 <MudContainer Style="margin: 0 auto; padding: 10px; text-align: center;">
     <MudGrid>
         <MudItem md="4" sm="4" xs="6">
             <MudTextField T="string" @bind-Value="@user.Username" Label="Tên đăng nhập" Variant="Variant.Outlined"
-            ReadOnly="!edit" Margin="Margin.Dense" Required="true"
-            RequiredError="Tên đăng nhập không được để trống!" />
+                          ReadOnly="!edit" Margin="Margin.Dense" Required="true"
+                          RequiredError="Tên đăng nhập không được để trống!" />
         </MudItem>
         <MudItem md="4" sm="4" xs="6">
             <MudTextField T="string" @bind-Value="@user.Password" Label="Mật khẩu" Variant="Variant.Outlined"
-            ReadOnly="!edit" Margin="Margin.Dense" Required="true"
-            RequiredError="Mật khẩu không được để trống!" />
+                          ReadOnly="!edit" Margin="Margin.Dense" Required="true"
+                          RequiredError="Mật khẩu không được để trống!" />
         </MudItem>
         <MudItem md="4" sm="4" xs="6">
             <MudSelect T="int" ShrinkLabel Label="Quyền" Dense="true" Variant="Variant.Outlined"
-            ReadOnly="!edit" Margin="Margin.Dense" @bind-Value="user.RoleId">
+                       ReadOnly="!edit" Margin="Margin.Dense" @bind-Value="user.RoleId">
                 @foreach (var role in roles)
                 {
                     <MudSelectItem Value="@role.RoleId">
@@ -37,13 +40,13 @@
 
         <MudItem md="6" sm="6" xs="6">
             <MudTextField T="string" @bind-Value="@user.Phone" ReadOnly="!edit" Label="SĐT" Variant="Variant.Outlined"
-            Margin="Margin.Dense" Required="true"
-            RequiredError="Số điện thoại không được để trống!" />
+                          Margin="Margin.Dense" Required="true"
+                          RequiredError="Số điện thoại không được để trống!" />
         </MudItem>
         <MudItem md="6" sm="6" xs="12">
             <MudTextField T="string" @bind-Value="@user.Email" ReadOnly="!edit" Label="Email" Variant="Variant.Outlined"
-            Margin="Margin.Dense" Required="true"
-            RequiredError="Email không được để trống!" />
+                          Margin="Margin.Dense" Required="true"
+                          RequiredError="Email không được để trống!" />
         </MudItem>
     </MudGrid>
 
@@ -73,7 +76,7 @@
 
     <!-- Bảng -->
     <MudTable Dense="true" Breakpoint="Breakpoint.None" Style="white-space:nowrap; margin-top: 20px;"
-    Bordered="true" Striped="true" Items="@users" SortMode="SortMode.Multiple" Hover="true">
+              Bordered="true" Striped="true" Items="@users" SortMode="SortMode.Multiple" Hover="true">
         <HeaderContent>
             <MudTh>STT</MudTh>
             <MudTh>Tên đăng nhập</MudTh>
@@ -100,7 +103,7 @@
 
 <style>
     .table {
-    font-family: Arial;
+        font-family: Arial;
     }
 </style>
 
@@ -127,7 +130,7 @@
         {
             users = await UserService.GetAllStaff();
             roles = await UserService.GetAllRole();
-           
+
         }
         catch (Exception ex)
         {
@@ -140,12 +143,17 @@
         try
         {
             user = await UserService.GetUserById(userId);
+            if (user != null)
+            {
+                user.Password = ""; 
+            }
         }
         catch (Exception ex)
         {
             errorMessage = $"Lỗi khi tải chi tiết người dùng: {ex.Message}";
         }
     }
+
     private void Add()
     {
         user = new();
@@ -181,49 +189,60 @@
     {
         try
         {
-            if (create)
+            if (create) 
             {
-                if (string.IsNullOrEmpty(user.Username) || string.IsNullOrEmpty(user.Password))
+                if (string.IsNullOrEmpty(user.Username))
                 {
-                    errorMessage = "Tên đăng nhập và mật khẩu không được để trống!";
+                    errorMessage = "Tên đăng nhập không được để trống!";
                     return;
                 }
-                else
+
+                if (string.IsNullOrEmpty(user.Password))
                 {
-                    user.Img = null;
-                    user.Status = 1;
-                    user.Created = DateTime.Now;
-                    await UserService.CreateUser(user);
-                    successMessage = "Thêm mới thành công!";
-                    users = await UserService.GetAllStaff();
+                    errorMessage = "Mật khẩu không được để trống!";
+                    return;
                 }
-               
+
+                user.Img = null;
+                user.Status = 1;
+                user.Created = DateTime.Now;
+
+                await UserService.CreateUser(user, user.Password);
+                successMessage = "Thêm mới thành công!";
+                users = await UserService.GetAllStaff();
             }
-            else if (edit)
+
+            else if (edit) 
             {
                 if (user == null)
                 {
                     errorMessage = "Vui lòng chọn nhân viên cần sửa thông tin!";
+                    return;
+                }
+
+                user.Updated = DateTime.Now;
+
+                if (!string.IsNullOrEmpty(user.Password)) // Nếu có thay đổi mật khẩu
+                {
+                    await UserService.EditUser(user, user.Password);
                 }
                 else
                 {
-                    user.Updated = DateTime.Now;
-                    await UserService.EditUser(user);
-                    successMessage = "Cập nhật thành công!";
-                    users = await UserService.GetAllStaff();
+                    await UserService.EditUser(user, null);
                 }
 
+                successMessage = "Cập nhật thành công!";
+                users = await UserService.GetAllStaff();
             }
 
             create = false;
             edit = false;
+            btnStatus = false;
         }
         catch (Exception ex)
         {
             errorMessage = $"Lỗi khi lưu thông tin: {ex.Message}";
         }
     }
+
 }
-
-
-

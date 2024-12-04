@@ -2,67 +2,100 @@
 using BanSach.Components.IService;
 using BanSach.Components.Model;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 
 namespace BanSach.Components.Services
 {
-    public class UserService: IUserService
+    public class UserService : IUserService
     {
         private readonly AppDbContext db;
         public UserService(AppDbContext _db)
         {
             db = _db;
         }
+
+        
         public async Task<List<User>> GetAllStaff()
         {
             return await db.Users.Where(u => u.RoleId == 3).ToListAsync();
         }
+
+        
         public async Task<List<User>> GetAllUser()
         {
             return await db.Users.Where(u => u.RoleId == 2).ToListAsync();
         }
 
-        public async Task<User> CreateUser(User User)
+        
+        public async Task<User> CreateUser(User user, string password)
         {
-            db.Users.Add(User);
-            await db.SaveChangesAsync();
-            return User; 
-        }
-
-        public async Task DeleteUser(User User)
-        {
-            db.Users.Remove(User);
-            await db.SaveChangesAsync();
-        }
-
-        public async Task EditUser(User User)
-        {
-            db.Users.Update(User);
-            await db.SaveChangesAsync();
-        }
-        public async Task<User?> GetUserById(int userId)
-        {
-            var User = await db.Users.FirstOrDefaultAsync(p => p.UserId == userId);
-            if (User == null)
+            if (await UserExists(user.Email))
             {
-                return null;
+                throw new Exception("Email already exists.");
             }
 
-            return User;
+            CreatePasswordHash(password, out byte[] passwordHash, out byte[] passwordSalt);
+            user.PasswordHash = passwordHash;
+            user.PasswordSalt = passwordSalt;
+
+            db.Users.Add(user);
+            await db.SaveChangesAsync();
+            return user;
         }
-// role
+
+        
+        public async Task DeleteUser(User user)
+        {
+            db.Users.Remove(user);
+            await db.SaveChangesAsync();
+        }
+
+       
+        public async Task EditUser(User user, string? newPassword = null)
+        {
+            if (!string.IsNullOrEmpty(newPassword))
+            {
+                CreatePasswordHash(newPassword, out byte[] passwordHash, out byte[] passwordSalt);
+                user.PasswordHash = passwordHash;
+                user.PasswordSalt = passwordSalt;
+            }
+
+            db.Users.Update(user);
+            await db.SaveChangesAsync();
+        }
+
+       
+        public async Task<User?> GetUserById(int userId)
+        {
+            return await db.Users.FirstOrDefaultAsync(p => p.UserId == userId);
+        }
+
+        
+        private async Task<bool> UserExists(string email)
+        {
+            return await db.Users.AnyAsync(u => u.Email.ToLower() == email.ToLower());
+        }
+
+        
+        private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+        {
+            using (var hmac = new HMACSHA512())
+            {
+                passwordSalt = hmac.Key;
+                passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+            }
+        }
+
+        // Role
         public async Task<List<Role>> GetAllRole()
         {
             return await db.Roles.ToListAsync();
         }
+
         public async Task<Role> GetRoleById(int roleId)
         {
             var role = await db.Roles.FirstOrDefaultAsync(p => p.RoleId == roleId);
-            if (role == null)
-            {
-                return null;
-            }
-
-            return role;
+            return role ?? throw new Exception("Role not found.");
         }
     }
 }

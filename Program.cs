@@ -13,7 +13,9 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using BanSach.Components.Services.QNAService;
-using BanSach.Components.Services;
+
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -23,7 +25,6 @@ builder.Services.AddHttpClient();
 builder.Services.AddRazorPages();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddMudServices();
-builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IItemManagement, ItemManagement>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -54,8 +55,19 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddControllersWithViews()
+               .AddSessionStateTempDataProvider();
+builder.Services.AddSession();
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.SameSite = SameSiteMode.None;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Chỉ sử dụng với HTTPS
+});
+
 
 var app = builder.Build();
+
+
 app.UseSwaggerUI();
 if (!app.Environment.IsDevelopment())
 {
@@ -63,17 +75,21 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 app.UseSwagger();
-app.UseSwaggerUI();
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
-app.UseAntiforgery();
 
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseSwagger();
+app.UseSwaggerUI();
+// Add UseAntiforgery middleware here after Authentication and Authorization
+app.UseAntiforgery();
 
-app.MapRazorPages(); // Ánh xạ Razor Pages
-
+// Add routing and endpoints
+app.MapRazorPages(); // Để ánh xạ Razor Pages (Blazor)
+app.MapControllers(); // Để ánh xạ các API Endpoint
 app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+    .AddInteractiveServerRenderMode(); // Để ánh xạ Razor Components
+
 app.Run();

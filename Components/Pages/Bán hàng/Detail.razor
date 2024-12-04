@@ -158,7 +158,7 @@
 
     private async Task HandleBuyNow()
     {
-        // Kiểm tra số lượng trước khi tiến hành mua hàng
+        
         if (quantity <= 0)
         {
             DialogService.ShowMessageBox("Lỗi", "Số lượng phải lớn hơn 0.");
@@ -182,27 +182,27 @@
         }
         int userId = int.Parse(userIdClaim.Value);
 
-        // Tạo đối tượng hóa đơn cho sản phẩm
+        
         var productBill = new Product_bill
             {
-                FeaturePId = product.ProductId,  // Sử dụng ID sản phẩm
-                Price = quantity * product.SellPrice,  // Tính tổng giá
+                FeaturePId = product.ProductId,  
+                Price = quantity * product.SellPrice,  
                 Quantity = quantity,
                 Created = DateTime.Now,
                 Updated = DateTime.Now,
             };
 
-        // Gửi hóa đơn tới dịch vụ để xử lý đơn hàng
+        
         var productBillResult = await CartService.PlaceProductBill(productBill);
 
         if (productBillResult != null)
         {
-            // Nếu thành công, chuyển đến trang hóa đơn
+            
             navigationManager.NavigateTo($"/invoice/{productBillResult.ProductBillId}");
         }
         else
         {
-            // Nếu có lỗi
+            
             DialogService.ShowMessageBox("Lỗi", "Đặt hàng không thành công. Vui lòng thử lại.");
         }
     }

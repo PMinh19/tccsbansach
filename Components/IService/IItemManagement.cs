@@ -17,6 +17,8 @@ namespace BanSach.Components.IService
         Task<List<Img>> GetAllImg();
         Task<Img> CreateImg(Img img);
         Task EditImg(Img img);
-        Task<Img?> GetLastImgAsync();
+        Task<List<Img>> GetLastFourImgsAsync();
+        Task<List<Img>> GetAllImgsDescending();
+        Task DeleteImg(Img img);
     }
 }

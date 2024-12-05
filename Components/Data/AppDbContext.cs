@@ -9,6 +9,7 @@ namespace BanSach.Components.Data
         {
 
         }
+        public DbSet<Discount> Discounts { get; set; }
         public DbSet<QNA> QNA { get; set; }
         public DbSet<Address> Address { get; set; }
         public DbSet<Bill> Bill { get; set; }
@@ -35,6 +36,12 @@ namespace BanSach.Components.Data
                 .HasKey(o => o.BillId);
             modelBuilder.Entity<Bill>()
                 .Property(o => o.BillId)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<Discount>()
+                .HasKey(o => o.DiscountId);
+            modelBuilder.Entity<Discount>()
+                .Property(o => o.DiscountId)
                 .ValueGeneratedOnAdd();
 
             modelBuilder.Entity<Category>()
@@ -109,7 +116,7 @@ namespace BanSach.Components.Data
             modelBuilder.Entity<User>()
                 .Property(m => m.UserId)
                 .ValueGeneratedOnAdd();
-           
+
         }
     }
 }

@@ -94,21 +94,28 @@ namespace BanSach.Components.Services
             db.Imgs.Update(img);
             await db.SaveChangesAsync();
         }
-        public async Task<Img?> GetLastImgAsync()
+        public async Task<List<Img>> GetLastFourImgsAsync()
         {
-            // Lấy sản phẩm có ImgId lớn nhất (giả sử đây là sản phẩm được thêm cuối cùng)
-            var img = await db.Imgs
-                              .OrderByDescending(i => i.ImgId) // Sắp xếp giảm dần theo ImgId
-                              .FirstOrDefaultAsync(); // Lấy ảnh đầu tiên (cuối cùng trong bảng)
+            // Lấy 4 sản phẩm cuối cùng theo thứ tự giảm dần của ImgId
+            var imgs = await db.Imgs
+                               .OrderByDescending(i => i.ImgId) // Sắp xếp giảm dần theo ImgId
+                               .Take(4) // Lấy 4 bản ghi đầu tiên của danh sách đã sắp xếp
+                               .ToListAsync();
 
-            // Kiểm tra nếu không có ảnh nào
-            if (img == null)
-            {
-                return null;
-            }
-
-            return img;
+            return imgs;
         }
 
+        public async Task<List<Img>> GetAllImgsDescending()
+        {
+            return await db.Imgs
+                          .OrderByDescending(img => img.ImgId) // Sắp xếp giảm dần theo Id
+                          .ToListAsync();
+        }
+
+        public async Task DeleteImg(Img img)
+        {
+            db.Imgs.Remove(img);
+            await db.SaveChangesAsync();
+        }
     }
 }

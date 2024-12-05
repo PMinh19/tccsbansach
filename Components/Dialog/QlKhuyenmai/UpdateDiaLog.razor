@@ -1,0 +1,48 @@
+﻿@using BanSach.Components.IService
+@using BanSach.Components.Services
+@using BanSach.Components.Model
+@inject IDialogService DialogService
+@inject IItemManagement ItemManagement
+@rendermode InteractiveServer
+<MudDialog style="width:500px">
+    <TitleContent>
+        <MudText Typo="Typo.h5">
+            Thêm khuyến mãi
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField Value="@ProductName" Label="Outlined" Variant="Variant.Outlined"></MudTextField>
+        <MudTextField @bind-Value="discount.Rate" Label="Outlined" Variant="Variant.Outlined"></MudTextField>
+        <MudTextField @bind-Value="discount.StartDate" Label="Outlined" Variant="Variant.Outlined"></MudTextField>
+        <MudTextField @bind-Value="discount.EndDate" Label="Outlined" Variant="Variant.Outlined"></MudTextField>
+
+    </DialogContent>
+    <DialogActions>
+        <CreateDiaLog />
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Error" OnClick="createCategory">Create</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [Parameter]
+    [CascadingParameter]
+    public MudDialogInstance? MudDialog { get; set; }
+
+    [Parameter]
+    public Discount discount { get; set; } = new Discount();
+    public Product product = new Product();
+    public List<Product> products = new List<Product>();
+    private void Cancel() => MudDialog!.Cancel();
+    private string GetProductName(int productId)
+    {
+        var product = products.FirstOrDefault(c => c.ProductId == productId);
+        return product?.ProductName ?? "Chưa xác định"; // Default value if category is not found
+    }
+    private string ProductName => GetProductName(discount.ProductId);
+    private void createCategory()
+    {
+
+        MudDialog!.Close(DialogResult.Ok(discount));
+    }
+
+}

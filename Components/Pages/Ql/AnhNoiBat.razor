@@ -1,4 +1,5 @@
 ﻿@page "/noibat"
+@using BanSach.Components.Dialog.Qlanhr
 @using BanSach.Components.Model
 @using BanSach.Components.Services
 @using BanSach.Components.IService
@@ -11,67 +12,35 @@
 @rendermode InteractiveServer
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
-<div style="margin:20px">
-    <h2>Ảnh nổi bật</h2>
+<div style="display:flex; justify-content: space-between; padding: 30px 30px 0 30px;">
+    <h2 style="font-family:Arial;">Quản lý ảnh nổi bật</h2>
+    <MudSpacer></MudSpacer>
+    <MudButton OnClick="@((e) => CreateAsync(img))" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Thêm</MudButton>
 </div>
+<MudGrid Style="margin: 20px;">
+    <MudItem xs="11" sm="11" md="11">
+        @if (imgs != null)
+        {
+            <MudGrid Mode="GridMode.Flex" Class="anh" Spacing="3">
+                @foreach (var img in imgs)
+                {
+                    <MudItem xs="5" sm="5" md="5" lg="5" Style="margin:20px">
+                        <div style="position: relative; width: 100%; overflow: hidden; border-radius: 8px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);">
+                            <img src="@img.img" alt="Product Image" style="width: 100%; height: 200px; object-fit: cover; display: block;" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Close"
+                                           OnClick="@((e) => DeleteAsync(img))"
+                                           Color="Color.Error"
+                                           Size="Size.Small"
+                                           Style="position: absolute; top: 8px; right: 8px; border-radius: 50%; background-color: white; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);" />
+                        </div>
+                    </MudItem>
+                }
+            </MudGrid>
 
-<MudGrid Style="margin: 20px 0">
-    <MudItem xs="6" sm="6" md="6">
-        @if (!string.IsNullOrEmpty(img.Img1))
-        {
-            <MudItem xs="12">
-                <MudText >Ảnh 1:</MudText>
-                <img src="@img.Img1" alt="Product Image" Height="200" width="400" Class="rounded-lg" />
-            </MudItem>
         }
     </MudItem>
-    <MudItem xs="6" sm="6" md="6">
-        @if (!string.IsNullOrEmpty(img.Img2))
-        {
-            <MudItem xs="12">
-                <MudText >Ảnh 2:</MudText>
-                <img src="@img.Img2" alt="Product Image" Height="200" width="400" Class="rounded-lg" />
-            </MudItem>
-        }
-    </MudItem>
-    <MudItem xs="6" sm="6" md="6">
-        @if (!string.IsNullOrEmpty(img.Img3))
-        {
-            <MudItem xs="12">
-                <MudText >Ảnh 3:</MudText>
-                <img src="@img.Img3" alt="Product Image" Height="200" width="400" Class="rounded-lg" />
-            </MudItem>
-        }
-    </MudItem>
-    <MudItem xs="6" sm="6" md="6">
-        @if (!string.IsNullOrEmpty(img.Img4))
-        {
-            <MudItem xs="12">
-                <MudText >Ảnh 4:</MudText>
-                <img src="@img.Img4" alt="Product Image" Height="200" width="400" Class="rounded-lg" />
-            </MudItem>
-        }
-    </MudItem>
-    <MudGrid>
-        <MudItem xs="12">
-            <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
-                <ActivatorContent>
-                    <MudFab Color="Color.Primary"
-                            StartIcon="@Icons.Material.Filled.Image"
-                            Label="Load picture" />
-                </ActivatorContent>
-            </MudFileUpload>
-        </MudItem>
-
-    @*     @if (!string.IsNullOrEmpty(product.Img))
-        {
-            <MudItem xs="12">
-                <MudText Typo="@Typo.h6">Xem trước ảnh:</MudText>
-                <img src="@product.Img" alt="Preview" width="180" Height="200" Class="rounded-lg" />
-            </MudItem>
-        } *@
-    </MudGrid>
 </MudGrid>
+
 
 @code {
     private Product product = new Product();
@@ -83,38 +52,38 @@
         imageDirectory = Path.Combine(Environment.WebRootPath, "images");
         try
         {
-            img = await ItemManagement.GetLastImgAsync();
-           
+            imgs = await ItemManagement.GetAllImgsDescending();
+
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine("Lỗi trong OnInitializedAsync: " + ex.Message);
         }
     }
-    private IList<IBrowserFile> _files = new List<IBrowserFile>();
 
-    // Đường dẫn thư mục lưu ảnh
-
-    // Phương thức tải lên ảnh
-    private async Task UploadFiles(IBrowserFile file)
+    private async Task CreateAsync(Img img)
     {
-        // Kiểm tra nếu thư mục 'images' không tồn tại thì tạo mới
-        if (!Directory.Exists(imageDirectory))
+        var parameters = new DialogParameters<Themanh> { { x => x.img, img } };
+        var dialog = await DialogService.ShowAsync<Themanh>("Thêm ảnh nổi bật", parameters);
+        var result = await dialog.Result;
+
+        if (!result!.Canceled)
         {
-            Directory.CreateDirectory(imageDirectory);
+            await ItemManagement.CreateImg(img);
+        }
+    }
+    private async Task DeleteAsync(Img img)
+    {
+        var parameters = new DialogParameters<DeleteConfirmDiaLog> { { x => x.img, img } };
+
+        var dialog = await DialogService.ShowAsync<DeleteConfirmDiaLog>("Xóa ảnh", parameters);
+        var result = await dialog.Result;
+
+        if (!result!.Canceled)
+        {
+            await ItemManagement.DeleteImg(img);
+            imgs = await ItemManagement.GetAllImgsDescending();
         }
 
-        // Tạo tên file duy nhất
-        string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.Name);
-        string filePath = Path.Combine(imageDirectory, fileName);
-
-        // Lưu file vào thư mục
-        using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await file.OpenReadStream().CopyToAsync(stream);
-        }
-
-        // Cập nhật đường dẫn file vào database hoặc object
-        product.Img = "/images/" + fileName;
     }
 }

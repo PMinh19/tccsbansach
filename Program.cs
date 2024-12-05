@@ -14,7 +14,14 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using BanSach.Components.Services.QNAService;
 
+
 using Microsoft.AspNetCore.Authentication.Cookies;
+
+
+using Microsoft.AspNetCore.Authentication.Cookies;
+
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +38,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IQNAService, QNAService>();
 builder.Services.AddScoped<IBillService, BillService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IDiscountServicecs, DiscountService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

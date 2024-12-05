@@ -136,31 +136,30 @@
             @foreach (var cartItem in product_carts)
             {
                 <MudGrid Class="cart-item">
-                    <!-- Nút chọn sản phẩm (không có label) -->
+                   
                     <MudItem xs="2" sm="1" md="1" Class="d-flex justify-center align-items-center">
                         <MudCheckBox T="bool" @bind-Checked="cartItem.IsSelected" Color="Color.Primary" />
                     </MudItem>
 
-                    <!-- Hình ảnh sản phẩm -->
+                  
                     <MudItem xs="4" sm="3" md="3">
                         <MudImage Class="cart-item-image" ObjectFit="ObjectFit.Cover" Width="150" Height="150" Src="@cartItem.Product.Img" />
                     </MudItem>
 
-                    <!-- Chi tiết sản phẩm (Tên và Giá) -->
+                   
                     <MudItem md="4" sm="4" xs="4" Class="cart-item-details">
                         <div class="cart-item-name">@cartItem.Product.ProductName</div>
                         <div class="cart-item-price">@string.Format(new CultureInfo("vi-VN"), "{0:N0}", cartItem.Product.SellPrice) vnđ</div>
                     </MudItem>
 
-                    <!-- Nút điều chỉnh số lượng và xóa -->
                     <MudItem xs="2" sm="2" md="2" Class="cart-item-quantity">
-                        <!-- Nút điều chỉnh số lượng -->
+                        
                         <MudNumericField T="int" @bind-Value="cartItem.Quantity" Min="1"
                                          Style="margin-bottom: 10px; width: 80px; font-weight: bold; color: black; background-color: white; border: 2px solid #ccc;" />
                     </MudItem>
 
                     <MudItem xs="2" sm="2" md="2" Class="cart-item-actions">
-                        <!-- Nút xóa -->
+                   
                         <MudButton Class="cart-item-remove" Variant="Variant.Filled" @onclick="() => RemoveFromCart(cartItem)">
                             Xóa
                         </MudButton>

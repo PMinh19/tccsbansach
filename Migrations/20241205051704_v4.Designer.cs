@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BanSach.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241202163810_v4")]
+    [Migration("20241205051704_v4")]
     partial class v4
     {
         /// <inheritdoc />
@@ -158,6 +158,31 @@ namespace BanSach.Migrations
                     b.ToTable("Deliveries");
                 });
 
+            modelBuilder.Entity("BanSach.Components.Model.Discount", b =>
+                {
+                    b.Property<int>("DiscountId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DiscountId"));
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<double>("Rate")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("DiscountId");
+
+                    b.ToTable("Discounts");
+                });
+
             modelBuilder.Entity("BanSach.Components.Model.Feature_Products", b =>
                 {
                     b.Property<int>("FeaturePId")
@@ -203,16 +228,7 @@ namespace BanSach.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ImgId"));
 
-                    b.Property<string>("Img1")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Img2")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Img3")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Img4")
+                    b.Property<string>("img")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ImgId");
@@ -366,6 +382,9 @@ namespace BanSach.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsCheckedOut")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSelected")
                         .HasColumnType("bit");
 
                     b.Property<int?>("Product_billProductBillId")

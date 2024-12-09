@@ -16,12 +16,13 @@
 
 </div>
 <MudTable Items="@discounts" Dense="true" Breakpoint="Breakpoint.None" Virtualize="true"
-          Style="white-space:nowrap" Bordered="true" RowClass="cursor-pointer" Striped="true" Hover="true" HorizontalScrollbar="true">
+Style="white-space:nowrap" Bordered="true" RowClass="cursor-pointer" Striped="true" Hover="true" HorizontalScrollbar="true">
 
     <HeaderContent>
         <MudTh>#</MudTh>
         <MudTh>Tên</MudTh>
         <MudTh>Giảm giá</MudTh>
+        <MudTh>Giá bán</MudTh>
         <MudTh>Ngày bắt đầu </MudTh>
         <MudTh>Ngày kết thúc</MudTh>
         <MudTh>Sửa</MudTh>
@@ -42,6 +43,9 @@
         </MudTd>
         <MudTd DataLabel="Giảm giá">
             <div>@string.Format(new CultureInfo("vi-VN"), "{0:N0}", context.Rate)</div>
+        </MudTd>
+        <MudTd DataLabel="Giá bán">
+            <div>@string.Format(new CultureInfo("vi-VN"), "{0:N0}", context.SellPrice)</div>
         </MudTd>
         <MudTd DataLabel="Ngày bắt đầu"><div>@context.StartDate</div></MudTd>
         <MudTd DataLabel="Nhà kết thúc"><div>@context.EndDate</div></MudTd>
@@ -71,6 +75,7 @@
         pageIndex = index;
     }
     private async Task<List<Product>> getAllSach() => await ItemManagement.GetAllItem();
+   
 
     protected override async Task OnInitializedAsync()
     {
@@ -93,6 +98,7 @@
         if (!result!.Canceled)
         {
             await DiscountService.EditItem(Discount);
+            await DiscountService.GetAllItem();
         }
     }
     private async Task CreateAsync(Discount Discount)
@@ -106,6 +112,7 @@
         if (!result!.Canceled)
         {
             await DiscountService.EditItem(Discount);
+            await DiscountService.GetAllItem();
         }
 
     }
@@ -119,6 +126,7 @@
         if (!result!.Canceled)
         {
             await DiscountService.EditItem(Discount);
+            await DiscountService.GetAllItem();
         }
 
     }

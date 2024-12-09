@@ -87,6 +87,22 @@ namespace BanSach.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Discounts",
+                columns: table => new
+                {
+                    DiscountId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    Rate = table.Column<double>(type: "float", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Discounts", x => x.DiscountId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "FeatureProducts",
                 columns: table => new
                 {
@@ -112,10 +128,7 @@ namespace BanSach.Migrations
                 {
                     ImgId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Img1 = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Img2 = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Img3 = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Img4 = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    img = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -245,6 +258,7 @@ namespace BanSach.Migrations
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Updated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsCheckedOut = table.Column<bool>(type: "bit", nullable: false),
+                    IsSelected = table.Column<bool>(type: "bit", nullable: false),
                     Product_billProductBillId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -322,6 +336,9 @@ namespace BanSach.Migrations
 
             migrationBuilder.DropTable(
                 name: "Deliveries");
+
+            migrationBuilder.DropTable(
+                name: "Discounts");
 
             migrationBuilder.DropTable(
                 name: "FeatureProducts");

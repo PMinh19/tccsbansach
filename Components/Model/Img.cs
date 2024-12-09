@@ -2,7 +2,7 @@
 {
     public class Img
     {
-        public int ImgId {  get; set; }
+        public int ImgId { get; set; }
         public string? img { get; set; }
     }
 }

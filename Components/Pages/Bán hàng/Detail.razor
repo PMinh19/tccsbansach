@@ -75,15 +75,12 @@
                 </MudItem>
             </MudGrid>
         }
-        else
-        {
-            <MudText Color="Color.Error">Sản phẩm không tồn tại.</MudText>
-        }
+       
     </MudItem>
 </MudGrid>
 
 @code {
-    public int quantity;
+    public int quantity=1;
     public int categoryId;
     public string? categoryName;
     private Product? product;
@@ -138,7 +135,7 @@
     {
         if (quantity <= 0)
         {
-            DialogService.ShowMessageBox("Lỗi", "Số lượng phải lớn hơn 0.");
+           await DialogService.ShowMessageBox("Lỗi", "Số lượng phải lớn hơn 0.");
             return;
         }
 
@@ -161,7 +158,7 @@
         
         if (quantity <= 0)
         {
-            DialogService.ShowMessageBox("Lỗi", "Số lượng phải lớn hơn 0.");
+           await DialogService.ShowMessageBox("Lỗi", "Số lượng phải lớn hơn 0.");
             return; // Dừng hàm nếu số lượng không hợp lệ
         }
 
@@ -170,14 +167,14 @@
 
         if (user == null || !user.Identity.IsAuthenticated)
         {
-            DialogService.ShowMessageBox("Lỗi", "Vui lòng đăng nhập để tiếp tục.");
+            await DialogService.ShowMessageBox("Lỗi", "Vui lòng đăng nhập để tiếp tục.");
             return;
         }
 
         var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
         if (userIdClaim == null)
         {
-            DialogService.ShowMessageBox("Lỗi", "Không thể xác định người dùng.");
+            await DialogService.ShowMessageBox("Lỗi", "Không thể xác định người dùng.");
             return;
         }
         int userId = int.Parse(userIdClaim.Value);
@@ -203,7 +200,7 @@
         else
         {
             
-            DialogService.ShowMessageBox("Lỗi", "Đặt hàng không thành công. Vui lòng thử lại.");
+            await DialogService.ShowMessageBox("Lỗi", "Đặt hàng không thành công. Vui lòng thử lại.");
         }
     }
 }

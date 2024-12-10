@@ -86,7 +86,7 @@ Style="white-space:nowrap" Bordered="true" RowClass="cursor-pointer" Striped="tr
     private string GetProductName(int productId)
     {
         var product = products.FirstOrDefault(c => c.ProductId == productId);
-        return product?.ProductName ?? "Chưa xác định"; // Default value if Discount is not found
+        return product?.ProductName ?? string.Empty;
     }
     private async Task UpdateAsync(Discount Discount)
     {

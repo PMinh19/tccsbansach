@@ -15,21 +15,25 @@
 <PageTitle>Home</PageTitle>
 <MudContainer MaxWidth="MaxWidth.Large" Class="pa-0">
     <!-- Ảnh nổi bật -->
-    <div style="display: flex; justify-content: center; width: 100%; margin-top: 20px;">
+   <div style="display: flex; justify-content: center; width: 100%; margin-top: 20px;">
+    @if (imgs == null)
+    {
+        <MudSpinner Color="Color.Primary" Size="Size.Large" />
+    }
+    else
+    {
         <MudCarousel TData="string" Interval="4000" style="height:300px; width:100%;display: flex; justify-content: center;">
-            @if (imgs != null)
+            @foreach (var img in imgs)
             {
-                @foreach (var img in imgs)
-                {
-                    <MudCarouselItem>
-                        <img src="@img?.img" alt="Product 1" style="width:100%; height: 100%; object-fit: cover; filter: grayscale(0.3);" />
-                        <MudCarouselItemText Style="background-color: rgba(51, 51, 51, 0.7); color: #EAEAEA;">Product 1</MudCarouselItemText>
-                    </MudCarouselItem>
-                }
+                <MudCarouselItem>
+                    <img src="@img?.img" alt="Product " style="width:100%; height: 100%; object-fit: cover; filter: grayscale(0.3);" />
+                    <MudCarouselItemText Style="background-color: rgba(51, 51, 51, 0.7); color: #EAEAEA;">Product 1</MudCarouselItemText>
+                </MudCarouselItem>
             }
-
         </MudCarousel>
-    </div>
+    }
+</div>
+
     <MudGrid Class="pt-2">
         <MudItem>
             <MudCard>
@@ -102,9 +106,14 @@
         // Khởi tạo danh sách nếu các dịch vụ trả về null
         products = await getAllSach();
         categories = await ItemManagement.GetAllCategogy();
+
+        // Đảm bảo imgs được tải đầy đủ trước khi hiển thị
         imgs = await ItemManagement.GetLastFourImgsAsync();
 
+        // Khi imgs đã được tải xong, gọi StateHasChanged để cập nhật giao diện
+        StateHasChanged();
     }
+
     private void Detail(int productId)
     {
         navigationManager.NavigateTo($"/Detail/{productId}");

@@ -82,5 +82,6 @@ public class CustomAuthStateProvider : AuthenticationStateProvider
         var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
 
         return keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString()));
+
     }
 }

@@ -9,8 +9,8 @@
 @inject ICartService CartService
 <PageTitle>Login</PageTitle>
 
-       
- 
+
+
 <body>
     <div class="form-container">
         <div class="col col-1">
@@ -22,21 +22,21 @@
                 <img src="../images/img/rocket.png" class="form-image rocket" />
                 <img src="../images/img/cloud.png" class="form-image cloud" />
                 <img src="../images/img/stars.png" class="form-image stars" />
-               
+
             </div>
 
         </div>
         <div class="col col-2">
-           
+
             <div class="login-form">
                 <div class="form-title">
                     <h3>Đăng nhập</h3>
                 </div>
-                
-                    <EditForm Model="user" OnValidSubmit="HandleLogin">
-                        <DataAnnotationsValidator />
-                        <ValidationSummary />
-                        <div class="form-inputs">
+
+                <EditForm Model="user" OnValidSubmit="HandleLogin">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                    <div class="form-inputs">
                         <div class="input-box">
                             <label for="email">Email</label>
                             <InputText id="email" @bind-Value="user.Email" class="input-field" type="email" />
@@ -69,81 +69,89 @@
                     </MudButton>
                 </div>
 
+            </div>
         </div>
-    </div>
     </div>
 </body>
 <style>
-   body{
+    body {
         background: url("../images/img/1.jpg");
-        background-position:center;
-        background-size:cover;
-        background-attachment:fixed;
+        background-position: center;
+        background-size: cover;
+        background-attachment: fixed;
         background-repeat: no-repeat;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        min-height:100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
         padding: 0 20px;
-   }
-   .form-container{
-       display:flex;
-       width:1000px;
-       height:600px;
-       border: 3px solid rgba(255,255,255,0.3);
-       border-radius:30px;
-       backdrop-filter:blur(20px);
-       
-   }
-   .col-1{
-       display:flex;
-       align-items:center;
-       justify-content:center;
-       flex-direction:column;
-       width:55%;
-       background: rgba(255,255,255,0.3);
-       backdrop-filter:blur(30px);
-       border-radius:0 30% 20% 0;
-       transition: border-radius .3s;
+    }
 
-   }
-   .image-layer{
-       position:relative;
-   }
+    .form-container {
+        display: flex;
+        width: 1000px;
+        height: 600px;
+        border: 3px solid rgba(255,255,255,0.3);
+        border-radius: 30px;
+        backdrop-filter: blur(20px);
+    }
+
+    .col-1 {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        width: 55%;
+        background: rgba(255,255,255,0.3);
+        backdrop-filter: blur(30px);
+        border-radius: 0 30% 20% 0;
+        transition: border-radius .3s;
+    }
+
+    .image-layer {
+        position: relative;
+    }
 
     .form-image-main {
         width: 400px;
         animation: scale-up 3s ease-in-out alternate infinite;
     }
 
-   .form-image{
-   position:absolute;
-   left:0;
-   width:400px;}
-   .coin{
-        animation: scale-down 3s ease-in-out alternate infinite;
-   }
-   .spring{
-        animation: scale-down 3s ease-in-out alternate infinite;
-   }
-   .dots{
-        animation: scale-up 3s ease-in-out alternate infinite;
-   }
-   .rocket{
-        animation: up-down 3s ease-in-out alternate infinite;
-   }
-   .cloud{
-        animation: left-right 3s ease-in-out alternate infinite;
-   }
-   .stars{
-        animation: scale-down 3s ease-in-out alternate infinite;
-   }
-
-   @@keyframes left-right {
-    to {
-        transform: translateX(10px);
+    .form-image {
+        position: absolute;
+        left: 0;
+        width: 400px;
     }
-}
+
+    .coin {
+        animation: scale-down 3s ease-in-out alternate infinite;
+    }
+
+    .spring {
+        animation: scale-down 3s ease-in-out alternate infinite;
+    }
+
+    .dots {
+        animation: scale-up 3s ease-in-out alternate infinite;
+    }
+
+    .rocket {
+        animation: up-down 3s ease-in-out alternate infinite;
+    }
+
+    .cloud {
+        animation: left-right 3s ease-in-out alternate infinite;
+    }
+
+    .stars {
+        animation: scale-down 3s ease-in-out alternate infinite;
+    }
+
+    @@keyframes left-right {
+        to {
+            transform: translateX(10px);
+        }
+    }
 
     @@keyframes up-down {
         to {
@@ -162,11 +170,12 @@
             transform: scale(1.05);
         }
     }
-   .col-2{
-       position:relative;
-       width:45%;
-       padding:20px;
-   }
+
+    .col-2 {
+        position: relative;
+        width: 45%;
+        padding: 20px;
+    }
 
     .login-form {
         position: absolute;

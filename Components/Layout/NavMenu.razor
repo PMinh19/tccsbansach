@@ -4,45 +4,111 @@
 </div>
 
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <MudNavLink Href="/ql/product" Icon="@Icons.Material.Filled.FormatListBulleted">Danh sách sách</MudNavLink>
 
-        </div>
-        <div class="nav-item px-3">
-            <MudNavLink Href="/khuyenmai" Icon="@Icons.Material.Filled.Apps">Khuyến mãi</MudNavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <MudNavLink Href="/Ql/Category" Icon="@Icons.Material.Filled.FormatListBulleted">Danh sách danh mục</MudNavLink>
-        </div>
-        <div class="nav-item px-3">
-            <MudNavLink Href="/tt" Icon="@Icons.Material.Filled.AccountBox">Tài khoản nhân viên</MudNavLink>
-
-        </div>
-        <div class="nav-item px-3">
-            <MudNavLink Href="/noibat" Icon="@Icons.Material.Filled.Apps">Ảnh nổi bật</MudNavLink>
-        </div>
-        <div class="nav-item px-3">
-            <MudNavLink Href="/xulidon" Icon="@Icons.Material.Filled.Apps">Quản lí đơn hàng</MudNavLink>
-        </div>
-        <div class="nav-item px-3">
-
-            <MudNavLink Href="/doanhthu" Icon="@Icons.Material.Filled.Article">Thống kê doanh thu</MudNavLink>
-        </div>
-        @*
-        <div class="nav-item px-3">
-        <NavLink class="nav-link" href="/login">
-        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> đăng nhập
-        </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-        <NavLink class="nav-link" href="/signup">
-        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> đăng kí
-        </NavLink>
-        </div>
-        *@
-    </nav>
+@inject CustomAuthStateProvider AuthStateProvider
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+    </div>
 </div>
+
+<AuthorizeView>
+    <Authorized>
+        @if (userRoleId == "2")
+        {
+            <div class="nav-scrollable">
+                <nav class="flex-column">
+                    <div class="nav-item px-3">
+                        <MudNavLink Href="/profile" Icon="@Icons.Material.Filled.Apps">Hồ sơ</MudNavLink>
+                    </div>
+                </nav>
+            </div>
+        }
+        else if (userRoleId == "3")
+        {
+            <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+                <nav class="flex-column">
+                    <div class="nav-item px-3">
+                        <MudNavLink Href="/ql/product" Icon="@Icons.Material.Filled.FormatListBulleted">Danh sách sách</MudNavLink>
+
+                    </div>
+                    <div class="nav-item px-3">
+                        <MudNavLink Href="/khuyenmai" Icon="@Icons.Material.Filled.Apps">Khuyến mãi</MudNavLink>
+                    </div>
+
+                    <div class="nav-item px-3">
+                        <MudNavLink Href="/Ql/Category" Icon="@Icons.Material.Filled.FormatListBulleted">Danh sách danh mục</MudNavLink>
+                    </div>
+
+                    <div class="nav-item px-3">
+                        <MudNavLink Href="/noibat" Icon="@Icons.Material.Filled.Apps">Ảnh nổi bật</MudNavLink>
+                    </div>
+                    <div class="nav-item px-3">
+
+                        <MudNavLink Href="/doanhthu" Icon="@Icons.Material.Filled.Article">Thống kê doanh thu</MudNavLink>
+                    </div>
+
+                </nav>
+            </div>
+        }
+        else if (userRoleId == "1")
+        {
+            <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+                <nav class="flex-column">
+                    <div class="nav-item px-3">
+                        <MudNavLink Href="/ql/product" Icon="@Icons.Material.Filled.FormatListBulleted">Danh sách sách</MudNavLink>
+
+                    </div>
+                    <div class="nav-item px-3">
+                        <MudNavLink Href="/khuyenmai" Icon="@Icons.Material.Filled.Apps">Khuyến mãi</MudNavLink>
+                    </div>
+
+                    <div class="nav-item px-3">
+                        <MudNavLink Href="/Ql/Category" Icon="@Icons.Material.Filled.FormatListBulleted">Danh sách danh mục</MudNavLink>
+                    </div>
+                    <div class="nav-item px-3">
+                        <MudNavLink Href="/tt" Icon="@Icons.Material.Filled.AccountBox">Tài khoản nhân viên</MudNavLink>
+
+                    </div>
+                    <div class="nav-item px-3">
+                        <MudNavLink Href="/noibat" Icon="@Icons.Material.Filled.Apps">Ảnh nổi bật</MudNavLink>
+                    </div>
+                    <div class="nav-item px-3">
+
+                        <MudNavLink Href="/doanhthu" Icon="@Icons.Material.Filled.Article">Thống kê doanh thu</MudNavLink>
+                    </div>
+
+                </nav>
+            </div>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <h5>
+            Bạn cần <a href="login" style="text-decoration: underline;">đăng nhập</a> hoặc
+            <a href="register" style="text-decoration: underline;">đăng kí</a> để xem menu này.
+        </h5>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private string userRoleId;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            // Trích xuất RoleId từ Claims
+            userRoleId = user.Claims.FirstOrDefault(c => c.Type == "RoleId")?.Value;
+
+            // Debug thông tin RoleId
+            if (!string.IsNullOrEmpty(userRoleId))
+            {
+                Console.WriteLine($"RoleId: {userRoleId}");
+            }
+
+            StateHasChanged(); // Cập nhật giao diện
+        }
+    }
+}

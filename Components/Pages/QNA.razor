@@ -4,85 +4,97 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject ISnackbar Snackbar
 @inject IJSRuntime JSRuntime
+<AuthorizeView>
+    <Authorized>
+        <MudPaper Class="p-4">
+            <MudText Typo="Typo.h5">Q&A</MudText>
 
-<MudPaper Class="p-4">
-    <MudText Typo="Typo.h5">Q&A</MudText>
+            @* Form nhập câu hỏi mới *@
+            @if (!string.IsNullOrWhiteSpace(currentUserEmail))
+            {
+                <MudTextField @bind-Value="NewQuestion" Placeholder="Nhập câu hỏi của bạn..." Variant="Variant.Outlined" Class="mt-2" />
+                <MudButton OnClick="AddQuestion" Color="Color.Primary" Class="mt-2">Đặt câu hỏi</MudButton>
+            }
+            else
+            {
+                <h5>
+                    Bạn cần
+                    <a href="login" style="text-decoration: underline;">đăng nhập</a>
+                    hoặc
+                    <a href="register" style="text-decoration: underline;">đăng kí</a>
+                    để đặt câu hỏi.
+                </h5>
+            }
 
-    @* Form nhập câu hỏi mới *@
-    @if (!string.IsNullOrWhiteSpace(currentUserEmail))
-    {
-        <MudTextField @bind-Value="NewQuestion" Placeholder="Nhập câu hỏi của bạn..." Variant="Variant.Outlined" Class="mt-2" />
-        <MudButton OnClick="AddQuestion" Color="Color.Primary" Class="mt-2">Đặt câu hỏi</MudButton>
-    }
-    else
-    {
+            @* Thêm nút tra từ khóa và ô nhập từ khóa *@
+
+            <MudTextField @bind-Value="SearchQuery" Placeholder="Nhập từ khóa để tìm kiếm..." Variant="Variant.Outlined" Class="mt-2" />
+            <MudButton OnClick="SearchQuestions" Color="Color.Primary" Class="mt-2">Tra từ khóa</MudButton>
+
+            <MudList T="QNA">
+                @foreach (var item in FilteredQuestions)
+                {
+                    <MudListItem T="QNA">
+                        <MudText>
+                            <strong>@item.Question</strong> <br />
+                            <small style="color: gray;">Được hỏi bởi: @item.Email</small><br />
+
+                            @* Hiển thị icon để ẩn/hiện câu trả lời *@
+                            <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Title="Add" OnClick="() => ToggleAnswerVisibility(item.Id)" />
+
+                            @* Nếu câu trả lời được hiển thị thì mới hiển thị câu trả lời *@
+                            @if (isAnswerVisible.ContainsKey(item.Id) && isAnswerVisible[item.Id])
+                            {
+                                @if (!string.IsNullOrEmpty(item.Answer))
+                                {
+                                    <span><strong>Câu trả lời:</strong> @item.Answer</span> <br />
+                                    <small style="color: gray;">Được trả lời bởi: @item.AnswererEmail</small>
+                                }
+                                else
+                                {
+                                    <span><strong>Chưa có câu trả lời.</strong></span>
+                                }
+
+                                @* Hiển thị phần nhập câu trả lời *@
+                                @if (!string.IsNullOrWhiteSpace(currentUserEmail))
+                                {
+                                    <MudTextField @bind-Value="NewAnswer" Placeholder="Nhập câu trả lời..." Variant="Variant.Outlined" Class="mt-2" />
+                                    <MudButton OnClick="() => AddAnswer(item.Id)" Color="Color.Primary" Class="mt-2">Nhập câu trả lời</MudButton>
+
+                                    <MudButton OnClick="() => DeleteQuestion(item.Id)" Color="Color.Error" Class="mt-2"
+                                               Disabled="@(item.Email != currentUserEmail)">Xóa câu hỏi</MudButton>
+                                }
+                                else
+                                {
+                                    <h5>
+                                        Bạn cần
+                                        <a href="login" style="text-decoration: underline;">đăng nhập</a>
+                                        hoặc
+                                        <a href="register" style="text-decoration: underline;">đăng kí</a>
+                                        để nhập câu trả lời.
+                                    </h5>
+                                }
+                            }
+                            <br />
+                            <small style="color: gray;">@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+                        </MudText>
+                    </MudListItem>
+                }
+            </MudList>
+
+        </MudPaper>
+    </Authorized>
+    <NotAuthorized>
+
         <h5>
             Bạn cần
             <a href="login" style="text-decoration: underline;">đăng nhập</a>
             hoặc
             <a href="register" style="text-decoration: underline;">đăng kí</a>
-            để đặt câu hỏi.
+            để xem trang này.
         </h5>
-    }
-
-    @* Thêm nút tra từ khóa và ô nhập từ khóa *@
-
-    <MudTextField @bind-Value="SearchQuery" Placeholder="Nhập từ khóa để tìm kiếm..." Variant="Variant.Outlined" Class="mt-2" />
-    <MudButton OnClick="SearchQuestions" Color="Color.Primary" Class="mt-2">Tra từ khóa</MudButton>
-
-    <MudList T="QNA">
-        @foreach (var item in FilteredQuestions)
-        {
-            <MudListItem T="QNA">
-                <MudText>
-                    <strong>@item.Question</strong> <br />
-                    <small style="color: gray;">Được hỏi bởi: @item.Email</small><br />
-
-                    @* Hiển thị icon để ẩn/hiện câu trả lời *@
-                    <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Title="Add" OnClick="() => ToggleAnswerVisibility(item.Id)" />
-
-                    @* Nếu câu trả lời được hiển thị thì mới hiển thị câu trả lời *@
-                    @if (isAnswerVisible.ContainsKey(item.Id) && isAnswerVisible[item.Id])
-                    {
-                        @if (!string.IsNullOrEmpty(item.Answer))
-                        {
-                            <span><strong>Câu trả lời:</strong> @item.Answer</span> <br />
-                            <small style="color: gray;">Được trả lời bởi: @item.AnswererEmail</small>
-                        }
-                        else
-                        {
-                            <span><strong>Chưa có câu trả lời.</strong></span>
-                        }
-
-                        @* Hiển thị phần nhập câu trả lời *@
-                        @if (!string.IsNullOrWhiteSpace(currentUserEmail))
-                        {
-                            <MudTextField @bind-Value="NewAnswer" Placeholder="Nhập câu trả lời..." Variant="Variant.Outlined" Class="mt-2" />
-                            <MudButton OnClick="() => AddAnswer(item.Id)" Color="Color.Primary" Class="mt-2">Nhập câu trả lời</MudButton>
-
-                            <MudButton OnClick="() => DeleteQuestion(item.Id)" Color="Color.Error" Class="mt-2"
-                                       Disabled="@(item.Email != currentUserEmail)">Xóa câu hỏi</MudButton>
-                        }
-                        else
-                        {
-                            <h5>
-                                Bạn cần
-                                <a href="login" style="text-decoration: underline;">đăng nhập</a>
-                                hoặc
-                                <a href="register" style="text-decoration: underline;">đăng kí</a>
-                                để nhập câu trả lời.
-                            </h5>
-                        }
-                    }
-                    <br />
-                    <small style="color: gray;">@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
-                </MudText>
-            </MudListItem>
-        }
-    </MudList>
-
-</MudPaper>
-
+    </NotAuthorized>
+</AuthorizeView>
 @code {
     private List<BanSach.Components.Model.QNA> Questions = new List<BanSach.Components.Model.QNA>();
     private List<BanSach.Components.Model.QNA> FilteredQuestions = new List<BanSach.Components.Model.QNA>();

@@ -44,11 +44,14 @@ namespace BanSach.Components.Services.AuthService
 
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
-
+            if (user.RoleId == 0)
+            {
+                user.RoleId = 2;
+            }
             this.context.Users.Add(user);
             await this.context.SaveChangesAsync();
 
-            return new ServiceResponse<int> { Data = user.UserId, Message = "Registration successful!" };
+            return new ServiceResponse<int> { Data = user.UserId, Message = "Đăng kí tài khoản thành công" };
         }
 
 
@@ -107,6 +110,7 @@ namespace BanSach.Components.Services.AuthService
             {
                  new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                     new Claim(ClaimTypes.Name, user.Email),
+                    new Claim("RoleId", user.RoleId.ToString())
 
             };
 

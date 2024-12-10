@@ -20,6 +20,11 @@
             <MudTextField T="string" Icon="@Icons.Material.Filled.Search" Placeholder="Tìm kiếm..."
                           Style=" margin: 0 10px;" />
             <MudSpacer />
+            <AuthorizeView>
+                <Authorized Context="authContext">
+                    <h3>Xin chào <i>@authContext.User.Identity.Name</i>.</h3>
+                </Authorized>
+            </AuthorizeView>
             <MudText Class="ml-4">
                 <MudLink Href="/qna" Class="mud-link">Hỏi Đáp</MudLink>
             </MudText>
@@ -28,23 +33,16 @@
                 <Authorized>
                     <MudMenu Icon="@Icons.Material.Filled.AccountCircle"
                              AriaLabel="Open user menu">
-                             
-                        <a href="/profile" class="dropdown-item">Hồ sơ </a>
-                        <hr />
-                        <a href="/orders" class="dropdown-item">Hóa đơn</a> 
-                        <hr />
                         <button @onclick="Logout">Đăng xuất</button>
                     </MudMenu>
                 </Authorized>
                 <NotAuthorized>
                     <MudMenu Icon="@Icons.Material.Filled.AccountCircle"
                              AriaLabel="Open user menu">
-                        <a href="/profile" class="dropdown-item">Hồ sơ</a>
-                        <hr />
                         <a href="login?returnUrl=@NavigationManager.ToBaseRelativePath(NavigationManager.Uri)" class="dropdown-item">Đăng nhập</a>
-                        <hr/>
+                        <hr />
                         <a href="/register" class="dropdown-item">Đăng kí</a>
-                       
+
                     </MudMenu>
                 </NotAuthorized>
             </AuthorizeView>

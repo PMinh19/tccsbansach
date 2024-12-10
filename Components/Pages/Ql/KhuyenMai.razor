@@ -9,58 +9,125 @@
 @inject NavigationManager navigationManager
 @inject HttpClient httpClient
 @page "/khuyenmai"
-<div style="display:flex; padding: 30px 30px 0 30px;">
-    <h2 style="font-family:Arial;">Quản lí khuyến mãi </h2>
-    <MudSpacer></MudSpacer>
-    <MudButton OnClick="@((e)=>CreateAsync(discount))" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Thêm</MudButton>
+@inject CustomAuthStateProvider AuthStateProvider
 
-</div>
-<MudTable Items="@discounts" Dense="true" Breakpoint="Breakpoint.None" Virtualize="true"
-Style="white-space:nowrap" Bordered="true" RowClass="cursor-pointer" Striped="true" Hover="true" HorizontalScrollbar="true">
 
-    <HeaderContent>
-        <MudTh>#</MudTh>
-        <MudTh>Tên</MudTh>
-        <MudTh>Giảm giá</MudTh>
-        <MudTh>Giá bán</MudTh>
-        <MudTh>Ngày bắt đầu </MudTh>
-        <MudTh>Ngày kết thúc</MudTh>
-        <MudTh>Sửa</MudTh>
-        <MudTh>Xóa</MudTh>
+@if (userRoleId == "2")
+{
+    <h3>Bạn chưa được cấp quyền để xem trang này.</h3>
+}
+else if (userRoleId == "3")
+{
+    <div style="display:flex; padding: 30px 30px 0 30px;">
+        <h2 style="font-family:Arial;">Quản lí khuyến mãi </h2>
+        <MudSpacer></MudSpacer>
+        <MudButton OnClick="@((e)=>CreateAsync(discount))" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Thêm</MudButton>
 
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="#">
+    </div>
+    <MudTable Items="@discounts" Dense="true" Breakpoint="Breakpoint.None" Virtualize="true"
+              Style="white-space:nowrap" Bordered="true" RowClass="cursor-pointer" Striped="true" Hover="true" HorizontalScrollbar="true">
+
+        <HeaderContent>
+            <MudTh>#</MudTh>
+            <MudTh>Tên</MudTh>
+            <MudTh>Giảm giá</MudTh>
+            <MudTh>Giá bán</MudTh>
+            <MudTh>Ngày bắt đầu </MudTh>
+            <MudTh>Ngày kết thúc</MudTh>
+            <MudTh>Sửa</MudTh>
+            <MudTh>Xóa</MudTh>
+
+        </HeaderContent>
+        <RowTemplate>
             <MudTd DataLabel="#">
-                <input name="selected" type="checkbox" />
+                <MudTd DataLabel="#">
+                    <input name="selected" type="checkbox" />
+                </MudTd>
+
             </MudTd>
+            <MudTd DataLabel="Tên">
+                <div>
+                    @GetProductName(context.ProductId)
+                </div>
+            </MudTd>
+            <MudTd DataLabel="Giảm giá">
+                <div>@string.Format(new CultureInfo("vi-VN"), "{0:N0}", context.Rate)</div>
+            </MudTd>
+            <MudTd DataLabel="Giá bán">
+                <div>@string.Format(new CultureInfo("vi-VN"), "{0:N0}", context.SellPrice)</div>
+            </MudTd>
+            <MudTd DataLabel="Ngày bắt đầu"><div>@context.StartDate</div></MudTd>
+            <MudTd DataLabel="Nhà kết thúc"><div>@context.EndDate</div></MudTd>
+            <MudTd DataLabel="Sửa">
+                <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="@((e) => UpdateAsync(context))"></MudButton>
+            </MudTd>
+            <MudTd DataLabel="Xóa">
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" Color=Color.Error Size="Size.Small" OnClick="@((e) => DeleteAsync(context))" />
 
-        </MudTd>
-        <MudTd DataLabel="Tên">
-            <div>
-                @GetProductName(context.ProductId)
-            </div>
-        </MudTd>
-        <MudTd DataLabel="Giảm giá">
-            <div>@string.Format(new CultureInfo("vi-VN"), "{0:N0}", context.Rate)</div>
-        </MudTd>
-        <MudTd DataLabel="Giá bán">
-            <div>@string.Format(new CultureInfo("vi-VN"), "{0:N0}", context.SellPrice)</div>
-        </MudTd>
-        <MudTd DataLabel="Ngày bắt đầu"><div>@context.StartDate</div></MudTd>
-        <MudTd DataLabel="Nhà kết thúc"><div>@context.EndDate</div></MudTd>
-        <MudTd DataLabel="Sửa">
-            <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="@((e) => UpdateAsync(context))"></MudButton>
-        </MudTd>
-        <MudTd DataLabel="Xóa">
-            <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" Color=Color.Error Size="Size.Small" OnClick="@((e) => DeleteAsync(context))" />
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSize="10" @bind-PageIndex="@pageIndex" OnPageChanged="SetPage" />
+        </PagerContent>
+    </MudTable>
+}
+else if (userRoleId == "1")
+{
+    <div style="display:flex; padding: 30px 30px 0 30px;">
+        <h2 style="font-family:Arial;">Quản lí khuyến mãi </h2>
+        <MudSpacer></MudSpacer>
+        <MudButton OnClick="@((e)=>CreateAsync(discount))" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Thêm</MudButton>
 
-        </MudTd>
-    </RowTemplate>
-    <PagerContent>
-        <MudTablePager PageSize="10" @bind-PageIndex="@pageIndex" OnPageChanged="SetPage" />
-    </PagerContent>
-</MudTable>
+    </div>
+    <MudTable Items="@discounts" Dense="true" Breakpoint="Breakpoint.None" Virtualize="true"
+              Style="white-space:nowrap" Bordered="true" RowClass="cursor-pointer" Striped="true" Hover="true" HorizontalScrollbar="true">
+
+        <HeaderContent>
+            <MudTh>#</MudTh>
+            <MudTh>Tên</MudTh>
+            <MudTh>Giảm giá</MudTh>
+            <MudTh>Giá bán</MudTh>
+            <MudTh>Ngày bắt đầu </MudTh>
+            <MudTh>Ngày kết thúc</MudTh>
+            <MudTh>Sửa</MudTh>
+            <MudTh>Xóa</MudTh>
+
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="#">
+                <MudTd DataLabel="#">
+                    <input name="selected" type="checkbox" />
+                </MudTd>
+
+            </MudTd>
+            <MudTd DataLabel="Tên">
+                <div>
+                    @GetProductName(context.ProductId)
+                </div>
+            </MudTd>
+            <MudTd DataLabel="Giảm giá">
+                <div>@string.Format(new CultureInfo("vi-VN"), "{0:N0}", context.Rate)</div>
+            </MudTd>
+            <MudTd DataLabel="Giá bán">
+                <div>@string.Format(new CultureInfo("vi-VN"), "{0:N0}", context.SellPrice)</div>
+            </MudTd>
+            <MudTd DataLabel="Ngày bắt đầu"><div>@context.StartDate</div></MudTd>
+            <MudTd DataLabel="Nhà kết thúc"><div>@context.EndDate</div></MudTd>
+            <MudTd DataLabel="Sửa">
+                <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="@((e) => UpdateAsync(context))"></MudButton>
+            </MudTd>
+            <MudTd DataLabel="Xóa">
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" Color=Color.Error Size="Size.Small" OnClick="@((e) => DeleteAsync(context))" />
+
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSize="10" @bind-PageIndex="@pageIndex" OnPageChanged="SetPage" />
+        </PagerContent>
+    </MudTable>
+}
+
+
 @code {
     public Discount discount = new Discount();
     public List<Discount> discounts = new List<Discount>();
@@ -129,5 +196,26 @@ Style="white-space:nowrap" Bordered="true" RowClass="cursor-pointer" Striped="tr
             await DiscountService.GetAllItem();
         }
 
+    }
+    private string userRoleId;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            // Trích xuất RoleId từ Claims
+            userRoleId = user.Claims.FirstOrDefault(c => c.Type == "RoleId")?.Value;
+
+            // Debug thông tin RoleId
+            if (!string.IsNullOrEmpty(userRoleId))
+            {
+                Console.WriteLine($"RoleId: {userRoleId}");
+            }
+
+            StateHasChanged(); // Cập nhật giao diện
+        }
     }
 }

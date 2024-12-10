@@ -9,51 +9,109 @@
 @inject HttpClient httpClient
 @rendermode InteractiveServer
 @inject IDialogService DialogService
-<div style="display:flex; justify-content: space-between; padding: 30px 30px 0 30px;">
-    <h2 style="font-family:Arial;">Quản lý danh mục</h2>
-    <MudButton OnClick="@((e) => CreateAsync(category))" Variant="Variant.Text" Color="Color.Primary">Thêm</MudButton>
-</div>
-<MudTable Dense="true" Breakpoint="Breakpoint.None" Style="white-space:nowrap" Bordered="true" Striped="true"
-          Items="@categories" SortMode="SortMode.Multiple" Hover="true">
-    <HeaderContent>
-        <MudTh>STT</MudTh>
-        <MudTh>Tên danh mục</MudTh>
-        <MudTh>Ngày tạo</MudTh>
-        <MudTh>Ảnh</MudTh>
-        <MudTh>Sửa</MudTh>
-        <MudTh>Xóa</MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="STT"></MudTd>
-        <MudTd DataLabel="Tên danh mục">
-            <span>@context.CategoryName</span>
-        </MudTd>
-        <MudTd DataLabel="Ngày tạo" >
-            <span>@context.Created_at</span>
-        </MudTd>
-        <MudTd DataLabel="Ảnh">
-            <MudImage ObjectFit="ObjectFit.Cover" Width="70" Height="55" Src="@context.Img" Class="rounded-lg" />
-        </MudTd>
-         <MudTd DataLabel="Sửa">
-            <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="@((e) => UpdateAsync(context))"></MudButton>
-        </MudTd> 
+@inject CustomAuthStateProvider AuthStateProvider
 
-        <MudTd DataLabel="Xóa">
-            <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" Color=Color.Error Size="Size.Small" OnClick="@((e) => DeleteAsync(context))" />
-            
-        </MudTd>
 
-    </RowTemplate>
-    <PagerContent>
-        <MudTablePager />
-    </PagerContent>
-</MudTable>
-<style>
-    .table{
-        font-family:Arial;
+@if (userRoleId == "2")
+{
+    <h3>Bạn chưa được cấp quyền để xem trang này.</h3>
+}
+else if (userRoleId == "3")
+{
+    <div style="display:flex; justify-content: space-between; padding: 30px 30px 0 30px;">
+        <h2 style="font-family:Arial;">Quản lý danh mục</h2>
+        <MudButton OnClick="@((e) => CreateAsync(category))" Variant="Variant.Text" Color="Color.Primary">Thêm</MudButton>
+    </div>
+    <MudTable Dense="true" Breakpoint="Breakpoint.None" Style="white-space:nowrap" Bordered="true" Striped="true"
+              Items="@categories" SortMode="SortMode.Multiple" Hover="true">
+        <HeaderContent>
+            <MudTh>STT</MudTh>
+            <MudTh>Tên danh mục</MudTh>
+            <MudTh>Ngày tạo</MudTh>
+            <MudTh>Ảnh</MudTh>
+            <MudTh>Sửa</MudTh>
+            <MudTh>Xóa</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="STT"></MudTd>
+            <MudTd DataLabel="Tên danh mục">
+                <span>@context.CategoryName</span>
+            </MudTd>
+            <MudTd DataLabel="Ngày tạo">
+                <span>@context.Created_at</span>
+            </MudTd>
+            <MudTd DataLabel="Ảnh">
+                <MudImage ObjectFit="ObjectFit.Cover" Width="70" Height="55" Src="@context.Img" Class="rounded-lg" />
+            </MudTd>
+            <MudTd DataLabel="Sửa">
+                <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="@((e) => UpdateAsync(context))"></MudButton>
+            </MudTd>
 
-    }
-</style>
+            <MudTd DataLabel="Xóa">
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" Color=Color.Error Size="Size.Small" OnClick="@((e) => DeleteAsync(context))" />
+
+            </MudTd>
+
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+    <style>
+        .table {
+            font-family: Arial;
+        }
+    </style>
+}
+else if (userRoleId == "1")
+{
+    <div style="display:flex; justify-content: space-between; padding: 30px 30px 0 30px;">
+        <h2 style="font-family:Arial;">Quản lý danh mục</h2>
+        <MudButton OnClick="@((e) => CreateAsync(category))" Variant="Variant.Text" Color="Color.Primary">Thêm</MudButton>
+    </div>
+    <MudTable Dense="true" Breakpoint="Breakpoint.None" Style="white-space:nowrap" Bordered="true" Striped="true"
+              Items="@categories" SortMode="SortMode.Multiple" Hover="true">
+        <HeaderContent>
+            <MudTh>STT</MudTh>
+            <MudTh>Tên danh mục</MudTh>
+            <MudTh>Ngày tạo</MudTh>
+            <MudTh>Ảnh</MudTh>
+            <MudTh>Sửa</MudTh>
+            <MudTh>Xóa</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="STT"></MudTd>
+            <MudTd DataLabel="Tên danh mục">
+                <span>@context.CategoryName</span>
+            </MudTd>
+            <MudTd DataLabel="Ngày tạo">
+                <span>@context.Created_at</span>
+            </MudTd>
+            <MudTd DataLabel="Ảnh">
+                <MudImage ObjectFit="ObjectFit.Cover" Width="70" Height="55" Src="@context.Img" Class="rounded-lg" />
+            </MudTd>
+            <MudTd DataLabel="Sửa">
+                <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="@((e) => UpdateAsync(context))"></MudButton>
+            </MudTd>
+
+            <MudTd DataLabel="Xóa">
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" Color=Color.Error Size="Size.Small" OnClick="@((e) => DeleteAsync(context))" />
+
+            </MudTd>
+
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+    <style>
+        .table {
+            font-family: Arial;
+        }
+    </style>
+}
+
+
 @code {
     private Product product = new Product();
     private List<Product> products = new List<Product>();
@@ -131,6 +189,27 @@
         if (!result!.Canceled)
         {
             await Create(category);
+        }
+    }
+    private string userRoleId;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            // Trích xuất RoleId từ Claims
+            userRoleId = user.Claims.FirstOrDefault(c => c.Type == "RoleId")?.Value;
+
+            // Debug thông tin RoleId
+            if (!string.IsNullOrEmpty(userRoleId))
+            {
+                Console.WriteLine($"RoleId: {userRoleId}");
+            }
+
+            StateHasChanged(); // Cập nhật giao diện
         }
     }
 }

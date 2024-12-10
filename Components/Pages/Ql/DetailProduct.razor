@@ -12,135 +12,281 @@
 @rendermode InteractiveServer
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
-<div style="display:flex;  justify-content:left ;padding: 30px 30px 0 30px; text-align:center">
-    <h2 style="font-family:Arial;">THÔNG TIN SÁCH</h2>
-    <MudSpacer></MudSpacer>
-    <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" Color=Color.Error Size="Size.Small" OnClick="@((e) => DeleteAsync(product!))" />
-    <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="edit"></MudButton>
-</div>
-<MudGrid>
-    <MudItem xs="12" sm="12">
-        <MudCard>
-            <MudCardContent>
-                @if (product != null)
-                {
-                    <MudGrid>
-                        <MudItem xs="12" sm="12">
-                            <MudCard>
-                                <MudCardContent>
-                                    <MudGrid>
-                                        <MudItem xs="6" sm="6" md="6">
-                                            <MudTextField Margin="Margin.Dense" ShrinkLabel Variant="Variant.Outlined" Label="Tên" @bind-Value="product.ProductName" />
-                                        </MudItem>
-                                        <MudItem xs="6" sm="6" md="6">
-                                            <MudTextField Margin="Margin.Dense" ShrinkLabel Variant="Variant.Outlined" Label="Tác giả " @bind-Value="product.Author" />
-                                        </MudItem>
+@inject CustomAuthStateProvider AuthStateProvider
 
-                                    </MudGrid>
 
-                                    <MudGrid>
-                                        <MudItem xs="6" sm="6" md="6">
-                                            <MudTextField Margin="Margin.Dense" ShrinkLabel Variant="Variant.Outlined" Label="Năm sản xuất" @bind-Value="product.Year" />
-                                        </MudItem>
-                                        <MudItem xs="6" sm="6" md="6">
-                                            <MudTextField Margin="Margin.Dense" ShrinkLabel Variant="Variant.Outlined" Label="Nhà xuất bản" @bind-Value="product.Publisher" />
-                                        </MudItem>
-                                    </MudGrid>
-                                    <MudGrid>
-                                        <MudItem xs="4" sm="4" md="4">
-                                            <MudNumericField HideSpinButtons="true" @bind-Value="product.CostPrice" Label="Giá gốc" Variant="Variant.Outlined" Step="1" />
-                                        </MudItem>
-                                        <MudItem xs="4" sm="4" md="4">
-                                            <MudNumericField HideSpinButtons="true" @bind-Value="product.SellPrice" Label="Giá bán" Variant="Variant.Outlined" Step="1" />
-                                        </MudItem>
-                                        <MudItem xs="4" sm="4" md="4">
-                                            <MudNumericField HideSpinButtons="true" @bind-Value="product.Quantity" Label="Số lượng" Variant="Variant.Outlined" Step="1" />
-                                        </MudItem>
-                                    </MudGrid>
-
-                                    <MudGrid>
-                                        <MudItem xs="6" sm="6" md="6">
-                                            <MudTextField Margin="Margin.Dense" ReadOnly Variant="Variant.Outlined" ShrinkLabel Label="Thời gian tạo" @bind-Value="product.Created" />
-                                        </MudItem>
-                                        <MudItem xs="6" sm="6" md="6">
-                                            <MudTextField Margin="Margin.Dense" ReadOnly Variant="Variant.Outlined" ShrinkLabel Label="Thời gian sửa" @bind-Value="product.Updated" />
-                                        </MudItem>
-                                    </MudGrid>
-                                    <MudGrid>
-
-                                        <MudItem xs="6" md="6">
-                                            <MudSelect ShrinkLabel Label="Danh mục" Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined" T="int" @bind-Value="product.CategoryId">
-                                                @foreach (var category in Categories)
-                                                {
-                                                    <MudSelectItem Value="@category.CategoryId">
-                                                        <MudText Class="mb-1">@category.CategoryName</MudText>
-                                                    </MudSelectItem>
-                                                }
-                                            </MudSelect>
-                                        </MudItem>
-                                        <MudItem xs="6" sm="6" md="6">
-                                            <MudTextField Margin="Margin.Dense" Variant="Variant.Outlined" ShrinkLabel Label="Số trang" @bind-Value="product.PageNumber" />
-                                        </MudItem>
-                                    </MudGrid>
-                                    <MudGrid>
-                                        <MudItem xs="12" sm="12" md="12">
-                                            @* <div>Mô tả:@product.Description</div> *@
-                                            <textarea @bind="@product.Description" rows="4" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; background-color: transparent; color: #fff" placeholder="Mô tả..."></textarea>
-
-                                        </MudItem>
-                                    </MudGrid>
-                                    <MudGrid>
-                                        <MudItem xs="12" sm="12" md="12">
-                                            <MudItem xs="12">
-                                                <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
-                                                    <ActivatorContent>
-                                                        <MudFab Color="Color.Primary"
-                                                                StartIcon="@Icons.Material.Filled.Image"
-                                                                Label="Load picture" />
-                                                    </ActivatorContent>
-                                                </MudFileUpload>
+@if (userRoleId == "2")
+{
+    <h3>Bạn chưa được cấp quyền để xem trang này.</h3>
+}
+else if (userRoleId == "3")
+{
+    <div style="display:flex;  justify-content:left ;padding: 30px 30px 0 30px; text-align:center">
+        <h2 style="font-family:Arial;">THÔNG TIN SÁCH</h2>
+        <MudSpacer></MudSpacer>
+        <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" Color=Color.Error Size="Size.Small" OnClick="@((e) => DeleteAsync(product!))" />
+        <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="edit"></MudButton>
+    </div>
+    <MudGrid>
+        <MudItem xs="12" sm="12">
+            <MudCard>
+                <MudCardContent>
+                    @if (product != null)
+                    {
+                        <MudGrid>
+                            <MudItem xs="12" sm="12">
+                                <MudCard>
+                                    <MudCardContent>
+                                        <MudGrid>
+                                            <MudItem xs="6" sm="6" md="6">
+                                                <MudTextField Margin="Margin.Dense" ShrinkLabel Variant="Variant.Outlined" Label="Tên" @bind-Value="product.ProductName" />
                                             </MudItem>
-                                            @if (!string.IsNullOrEmpty(product.Img))
-                                            {
+                                            <MudItem xs="6" sm="6" md="6">
+                                                <MudTextField Margin="Margin.Dense" ShrinkLabel Variant="Variant.Outlined" Label="Tác giả " @bind-Value="product.Author" />
+                                            </MudItem>
+
+                                        </MudGrid>
+
+                                        <MudGrid>
+                                            <MudItem xs="6" sm="6" md="6">
+                                                <MudTextField Margin="Margin.Dense" ShrinkLabel Variant="Variant.Outlined" Label="Năm sản xuất" @bind-Value="product.Year" />
+                                            </MudItem>
+                                            <MudItem xs="6" sm="6" md="6">
+                                                <MudTextField Margin="Margin.Dense" ShrinkLabel Variant="Variant.Outlined" Label="Nhà xuất bản" @bind-Value="product.Publisher" />
+                                            </MudItem>
+                                        </MudGrid>
+                                        <MudGrid>
+                                            <MudItem xs="4" sm="4" md="4">
+                                                <MudNumericField HideSpinButtons="true" @bind-Value="product.CostPrice" Label="Giá gốc" Variant="Variant.Outlined" Step="1" />
+                                            </MudItem>
+                                            <MudItem xs="4" sm="4" md="4">
+                                                <MudNumericField HideSpinButtons="true" @bind-Value="product.SellPrice" Label="Giá bán" Variant="Variant.Outlined" Step="1" />
+                                            </MudItem>
+                                            <MudItem xs="4" sm="4" md="4">
+                                                <MudNumericField HideSpinButtons="true" @bind-Value="product.Quantity" Label="Số lượng" Variant="Variant.Outlined" Step="1" />
+                                            </MudItem>
+                                        </MudGrid>
+
+                                        <MudGrid>
+                                            <MudItem xs="6" sm="6" md="6">
+                                                <MudTextField Margin="Margin.Dense" ReadOnly Variant="Variant.Outlined" ShrinkLabel Label="Thời gian tạo" @bind-Value="product.Created" />
+                                            </MudItem>
+                                            <MudItem xs="6" sm="6" md="6">
+                                                <MudTextField Margin="Margin.Dense" ReadOnly Variant="Variant.Outlined" ShrinkLabel Label="Thời gian sửa" @bind-Value="product.Updated" />
+                                            </MudItem>
+                                        </MudGrid>
+                                        <MudGrid>
+
+                                            <MudItem xs="6" md="6">
+                                                <MudSelect ShrinkLabel Label="Danh mục" Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined" T="int" @bind-Value="product.CategoryId">
+                                                    @foreach (var category in Categories)
+                                                    {
+                                                        <MudSelectItem Value="@category.CategoryId">
+                                                            <MudText Class="mb-1">@category.CategoryName</MudText>
+                                                        </MudSelectItem>
+                                                    }
+                                                </MudSelect>
+                                            </MudItem>
+                                            <MudItem xs="6" sm="6" md="6">
+                                                <MudTextField Margin="Margin.Dense" Variant="Variant.Outlined" ShrinkLabel Label="Số trang" @bind-Value="product.PageNumber" />
+                                            </MudItem>
+                                        </MudGrid>
+                                        <MudGrid>
+                                            <MudItem xs="12" sm="12" md="12">
+                                                @* <div>Mô tả:@product.Description</div> *@
+                                                <textarea @bind="@product.Description" rows="4" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; background-color: transparent; color: #fff" placeholder="Mô tả..."></textarea>
+
+                                            </MudItem>
+                                        </MudGrid>
+                                        <MudGrid>
+                                            <MudItem xs="12" sm="12" md="12">
                                                 <MudItem xs="12">
-                                                    <MudText Typo="@Typo.h6">Xem ảnh:</MudText>
-                                                    <img src="@product.Img" alt="Product Image" Width="180" Height="200" Class="rounded-lg" />
+                                                    <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
+                                                        <ActivatorContent>
+                                                            <MudFab Color="Color.Primary"
+                                                                    StartIcon="@Icons.Material.Filled.Image"
+                                                                    Label="Load picture" />
+                                                        </ActivatorContent>
+                                                    </MudFileUpload>
                                                 </MudItem>
-                                            }
-                                        </MudItem>
-                                    </MudGrid>
-                                </MudCardContent>
-                            </MudCard>
-                        </MudItem>
-                        <MudItem xs="10" sm="10">
+                                                @if (!string.IsNullOrEmpty(product.Img))
+                                                {
+                                                    <MudItem xs="12">
+                                                        <MudText Typo="@Typo.h6">Xem ảnh:</MudText>
+                                                        <img src="@product.Img" alt="Product Image" Width="180" Height="200" Class="rounded-lg" />
+                                                    </MudItem>
+                                                }
+                                            </MudItem>
+                                        </MudGrid>
+                                    </MudCardContent>
+                                </MudCard>
+                            </MudItem>
+                            <MudItem xs="10" sm="10">
 
-                            @if (success)
-                            {
-                                <MudText Color="Color.Success">Success</MudText>
-                            }
-                            else
-                            {
-                                <MudText Color="@Color.Error">
+                                @if (success)
+                                {
+                                    <MudText Color="Color.Success">Success</MudText>
+                                }
+                                else
+                                {
+                                    <MudText Color="@Color.Error">
 
-                                </MudText>
-                            }
+                                    </MudText>
+                                }
 
-                        </MudItem>
-                    </MudGrid>
-                }
-                else
-                {
-                    <MudText Color="Color.Error">Sản phẩm không tồn tại.</MudText>
-                }
+                            </MudItem>
+                        </MudGrid>
+                    }
+                    else
+                    {
+                        <MudText Color="Color.Error">Sản phẩm không tồn tại.</MudText>
+                    }
 
-            </MudCardContent>
-            <MudCardActions>
+                </MudCardContent>
+                <MudCardActions>
 
 
-            </MudCardActions>
-        </MudCard>
-    </MudItem>
-</MudGrid>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+}
+else if (userRoleId == "1")
+{
+    <div style="display:flex;  justify-content:left ;padding: 30px 30px 0 30px; text-align:center">
+        <h2 style="font-family:Arial;">THÔNG TIN SÁCH</h2>
+        <MudSpacer></MudSpacer>
+        <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" Color=Color.Error Size="Size.Small" OnClick="@((e) => DeleteAsync(product!))" />
+        <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="edit"></MudButton>
+    </div>
+    <MudGrid>
+        <MudItem xs="12" sm="12">
+            <MudCard>
+                <MudCardContent>
+                    @if (product != null)
+                    {
+                        <MudGrid>
+                            <MudItem xs="12" sm="12">
+                                <MudCard>
+                                    <MudCardContent>
+                                        <MudGrid>
+                                            <MudItem xs="6" sm="6" md="6">
+                                                <MudTextField Margin="Margin.Dense" ShrinkLabel Variant="Variant.Outlined" Label="Tên" @bind-Value="product.ProductName" />
+                                            </MudItem>
+                                            <MudItem xs="6" sm="6" md="6">
+                                                <MudTextField Margin="Margin.Dense" ShrinkLabel Variant="Variant.Outlined" Label="Tác giả " @bind-Value="product.Author" />
+                                            </MudItem>
+
+                                        </MudGrid>
+
+                                        <MudGrid>
+                                            <MudItem xs="6" sm="6" md="6">
+                                                <MudTextField Margin="Margin.Dense" ShrinkLabel Variant="Variant.Outlined" Label="Năm sản xuất" @bind-Value="product.Year" />
+                                            </MudItem>
+                                            <MudItem xs="6" sm="6" md="6">
+                                                <MudTextField Margin="Margin.Dense" ShrinkLabel Variant="Variant.Outlined" Label="Nhà xuất bản" @bind-Value="product.Publisher" />
+                                            </MudItem>
+                                        </MudGrid>
+                                        <MudGrid>
+                                            <MudItem xs="4" sm="4" md="4">
+                                                <MudNumericField HideSpinButtons="true" @bind-Value="product.CostPrice" Label="Giá gốc" Variant="Variant.Outlined" Step="1" />
+                                            </MudItem>
+                                            <MudItem xs="4" sm="4" md="4">
+                                                <MudNumericField HideSpinButtons="true" @bind-Value="product.SellPrice" Label="Giá bán" Variant="Variant.Outlined" Step="1" />
+                                            </MudItem>
+                                            <MudItem xs="4" sm="4" md="4">
+                                                <MudNumericField HideSpinButtons="true" @bind-Value="product.Quantity" Label="Số lượng" Variant="Variant.Outlined" Step="1" />
+                                            </MudItem>
+                                        </MudGrid>
+
+                                        <MudGrid>
+                                            <MudItem xs="6" sm="6" md="6">
+                                                <MudTextField Margin="Margin.Dense" ReadOnly Variant="Variant.Outlined" ShrinkLabel Label="Thời gian tạo" @bind-Value="product.Created" />
+                                            </MudItem>
+                                            <MudItem xs="6" sm="6" md="6">
+                                                <MudTextField Margin="Margin.Dense" ReadOnly Variant="Variant.Outlined" ShrinkLabel Label="Thời gian sửa" @bind-Value="product.Updated" />
+                                            </MudItem>
+                                        </MudGrid>
+                                        <MudGrid>
+
+                                            <MudItem xs="6" md="6">
+                                                <MudSelect ShrinkLabel Label="Danh mục" Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined" T="int" @bind-Value="product.CategoryId">
+                                                    @foreach (var category in Categories)
+                                                    {
+                                                        <MudSelectItem Value="@category.CategoryId">
+                                                            <MudText Class="mb-1">@category.CategoryName</MudText>
+                                                        </MudSelectItem>
+                                                    }
+                                                </MudSelect>
+                                            </MudItem>
+                                            <MudItem xs="6" sm="6" md="6">
+                                                <MudTextField Margin="Margin.Dense" Variant="Variant.Outlined" ShrinkLabel Label="Số trang" @bind-Value="product.PageNumber" />
+                                            </MudItem>
+                                        </MudGrid>
+                                        <MudGrid>
+                                            <MudItem xs="12" sm="12" md="12">
+                                                @* <div>Mô tả:@product.Description</div> *@
+                                                <textarea @bind="@product.Description" rows="4" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; background-color: transparent; color: #fff" placeholder="Mô tả..."></textarea>
+
+                                            </MudItem>
+                                        </MudGrid>
+                                        <MudGrid>
+                                            <MudItem xs="12" sm="12" md="12">
+                                                <MudItem xs="12">
+                                                    <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
+                                                        <ActivatorContent>
+                                                            <MudFab Color="Color.Primary"
+                                                                    StartIcon="@Icons.Material.Filled.Image"
+                                                                    Label="Load picture" />
+                                                        </ActivatorContent>
+                                                    </MudFileUpload>
+                                                </MudItem>
+                                                @if (!string.IsNullOrEmpty(product.Img))
+                                                {
+                                                    <MudItem xs="12">
+                                                        <MudText Typo="@Typo.h6">Xem ảnh:</MudText>
+                                                        <img src="@product.Img" alt="Product Image" Width="180" Height="200" Class="rounded-lg" />
+                                                    </MudItem>
+                                                }
+                                            </MudItem>
+                                        </MudGrid>
+                                    </MudCardContent>
+                                </MudCard>
+                            </MudItem>
+                            <MudItem xs="10" sm="10">
+
+                                @if (success)
+                                {
+                                    <MudText Color="Color.Success">Success</MudText>
+                                }
+                                else
+                                {
+                                    <MudText Color="@Color.Error">
+
+                                    </MudText>
+                                }
+
+                            </MudItem>
+                        </MudGrid>
+                    }
+                    else
+                    {
+                        <MudText Color="Color.Error">Sản phẩm không tồn tại.</MudText>
+                    }
+
+                </MudCardContent>
+                <MudCardActions>
+
+
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+}
+
+
+
+
 @if (!string.IsNullOrEmpty(successMessage) || !string.IsNullOrEmpty(errorMessage))
 {
     <MudContainer Class="mt-3">
@@ -358,5 +504,25 @@
 
     }
 
+    private string userRoleId;
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            // Trích xuất RoleId từ Claims
+            userRoleId = user.Claims.FirstOrDefault(c => c.Type == "RoleId")?.Value;
+
+            // Debug thông tin RoleId
+            if (!string.IsNullOrEmpty(userRoleId))
+            {
+                Console.WriteLine($"RoleId: {userRoleId}");
+            }
+
+            StateHasChanged(); // Cập nhật giao diện
+        }
+    }
 }

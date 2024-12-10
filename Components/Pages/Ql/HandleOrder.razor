@@ -14,60 +14,129 @@
     @inject NavigationManager navigationManager
 
     @inject HttpClient httpClient
+@inject CustomAuthStateProvider AuthStateProvider
 
-<div style="display:flex; padding: 30px 30px 0 30px;">
-    <h2 style="font-family:Arial;">Quản lí đơn hàng </h2>
-    <MudSpacer></MudSpacer>
 
-</div>
-<MudTable Items="@bills" Dense="true" Breakpoint="Breakpoint.None" Virtualize="true"
-Style="white-space:nowrap" Bordered="true" RowClass="cursor-pointer" Striped="true" Hover="true" >
+@if (userRoleId == "2")
+{
+    <h3>Bạn chưa được cấp quyền để xem trang này.</h3>
+}
+else if (userRoleId == "3")
+{
+    <div style="display:flex; padding: 30px 30px 0 30px;">
+        <h2 style="font-family:Arial;">Quản lí đơn hàng </h2>
+        <MudSpacer></MudSpacer>
 
-    <HeaderContent>
-        <MudTh>Mã </MudTh>
-        <MudTh>ĐV vận chuyển</MudTh>
-        <MudTh>Tổng tiền</MudTh>
-        <MudTh>Thanh Toán</MudTh>
-        <MudTh>Trạng thái</MudTh>
-        <MudTh>Chú ý</MudTh>
-        <MudTh>Lựa chọn</MudTh>
+    </div>
+    <MudTable Items="@bills" Dense="true" Breakpoint="Breakpoint.None" Virtualize="true"
+              Style="white-space:nowrap" Bordered="true" RowClass="cursor-pointer" Striped="true" Hover="true">
 
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="Mã">
-            @context.BillId
+        <HeaderContent>
+            <MudTh>Mã </MudTh>
+            <MudTh>ĐV vận chuyển</MudTh>
+            <MudTh>Tổng tiền</MudTh>
+            <MudTh>Thanh Toán</MudTh>
+            <MudTh>Trạng thái</MudTh>
+            <MudTh>Chú ý</MudTh>
+            <MudTh>Lựa chọn</MudTh>
 
-        </MudTd>
-        <MudTd DataLabel="ĐV vận chuyển">
-            <div>
-                @GetDeliveryName(context.DeliveryId)
-            </div>
-        </MudTd>
-        <MudTd DataLabel="Tổng tiền">
-            <div>@string.Format(new CultureInfo("vi-VN"), "{0:N0}", context.TotalPrice)</div>
-        </MudTd>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Mã">
+                @context.BillId
 
-        <MudTd DataLabel="Thanh toán"><div>@context.PayStatus</div></MudTd>
-        <MudTd DataLabel="Trạng thái"><div>@context.Status</div></MudTd>
-        <MudTd DataLabel="Ghi chú">
-            @context.Note
-        </MudTd>
-        <MudTd DataLabel="Lựa chọn">
-           
+            </MudTd>
+            <MudTd DataLabel="ĐV vận chuyển">
+                <div>
+                    @GetDeliveryName(context.DeliveryId)
+                </div>
+            </MudTd>
+            <MudTd DataLabel="Tổng tiền">
+                <div>@string.Format(new CultureInfo("vi-VN"), "{0:N0}", context.TotalPrice)</div>
+            </MudTd>
+
+            <MudTd DataLabel="Thanh toán"><div>@context.PayStatus</div></MudTd>
+            <MudTd DataLabel="Trạng thái"><div>@context.Status</div></MudTd>
+            <MudTd DataLabel="Ghi chú">
+                @context.Note
+            </MudTd>
+            <MudTd DataLabel="Lựa chọn">
+
                 <MudMenu Size="Size.Small" Icon="@Icons.Material.Filled.MoreVert"
                          AriaLabel="Open user menu">
                     <MudMenuItem>
-                        <MudButton Style="white-space:nowrap" ></MudButton>
+                        <MudButton Style="white-space:nowrap"></MudButton>
                     </MudMenuItem>
-                    <MudMenuItem><MudButton Style="white-space:nowrap" >Xem ảnh</MudButton></MudMenuItem>
+                    <MudMenuItem><MudButton Style="white-space:nowrap">Xem ảnh</MudButton></MudMenuItem>
                 </MudMenu>
             </MudTd>
-     
-    </RowTemplate>
-    <PagerContent>
-        <MudTablePager PageSize="10" @bind-PageIndex="@pageIndex" OnPageChanged="SetPage" />
-    </PagerContent>
-</MudTable>
+
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSize="10" @bind-PageIndex="@pageIndex" OnPageChanged="SetPage" />
+        </PagerContent>
+    </MudTable>
+}
+else if (userRoleId == "1")
+{
+    <div style="display:flex; padding: 30px 30px 0 30px;">
+        <h2 style="font-family:Arial;">Quản lí đơn hàng </h2>
+        <MudSpacer></MudSpacer>
+
+    </div>
+    <MudTable Items="@bills" Dense="true" Breakpoint="Breakpoint.None" Virtualize="true"
+              Style="white-space:nowrap" Bordered="true" RowClass="cursor-pointer" Striped="true" Hover="true">
+
+        <HeaderContent>
+            <MudTh>Mã </MudTh>
+            <MudTh>ĐV vận chuyển</MudTh>
+            <MudTh>Tổng tiền</MudTh>
+            <MudTh>Thanh Toán</MudTh>
+            <MudTh>Trạng thái</MudTh>
+            <MudTh>Chú ý</MudTh>
+            <MudTh>Lựa chọn</MudTh>
+
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Mã">
+                @context.BillId
+
+            </MudTd>
+            <MudTd DataLabel="ĐV vận chuyển">
+                <div>
+                    @GetDeliveryName(context.DeliveryId)
+                </div>
+            </MudTd>
+            <MudTd DataLabel="Tổng tiền">
+                <div>@string.Format(new CultureInfo("vi-VN"), "{0:N0}", context.TotalPrice)</div>
+            </MudTd>
+
+            <MudTd DataLabel="Thanh toán"><div>@context.PayStatus</div></MudTd>
+            <MudTd DataLabel="Trạng thái"><div>@context.Status</div></MudTd>
+            <MudTd DataLabel="Ghi chú">
+                @context.Note
+            </MudTd>
+            <MudTd DataLabel="Lựa chọn">
+
+                <MudMenu Size="Size.Small" Icon="@Icons.Material.Filled.MoreVert"
+                         AriaLabel="Open user menu">
+                    <MudMenuItem>
+                        <MudButton Style="white-space:nowrap"></MudButton>
+                    </MudMenuItem>
+                    <MudMenuItem><MudButton Style="white-space:nowrap">Xem ảnh</MudButton></MudMenuItem>
+                </MudMenu>
+            </MudTd>
+
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSize="10" @bind-PageIndex="@pageIndex" OnPageChanged="SetPage" />
+        </PagerContent>
+    </MudTable>
+}
+
+
+
+
 @code {
     public Product_bill Product_bill = new Product_bill();
     public List<Product_bill> Product_bills = new List<Product_bill>();
@@ -149,5 +218,26 @@ Style="white-space:nowrap" Bordered="true" RowClass="cursor-pointer" Striped="tr
             }
 
         }
+    private string userRoleId;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            // Trích xuất RoleId từ Claims
+            userRoleId = user.Claims.FirstOrDefault(c => c.Type == "RoleId")?.Value;
+
+            // Debug thông tin RoleId
+            if (!string.IsNullOrEmpty(userRoleId))
+            {
+                Console.WriteLine($"RoleId: {userRoleId}");
+            }
+
+            StateHasChanged(); // Cập nhật giao diện
+        }
     }
+}
 

@@ -12,59 +12,127 @@
 @inject HttpClient httpClient
 @rendermode InteractiveServer
 @inject IDialogService DialogService
-<div style="display:flex; padding: 30px 30px 0 30px;">
-    <h2 style="font-family:Arial;">Danh sách sách</h2>
-    <MudSpacer></MudSpacer> 
-    <MudButton OnClick="AddProduct" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Thêm</MudButton>
-    @* <MudButton OnClick="AddProduct" ButtonType="ButtonType.Submit" Variant="Variant.Filled" style="background:#4CAF50" Class="ml-auto">Thêm</MudButton>
+@inject CustomAuthStateProvider AuthStateProvider
+
+
+@if (userRoleId == "2")
+{
+    <h3>Bạn chưa được cấp quyền để xem trang này.</h3>
+}
+else if (userRoleId == "3")
+{
+    <div style="display:flex; padding: 30px 30px 0 30px;">
+        <h2 style="font-family:Arial;">Danh sách sách</h2>
+        <MudSpacer></MudSpacer>
+        <MudButton OnClick="AddProduct" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Thêm</MudButton>
+        @* <MudButton OnClick="AddProduct" ButtonType="ButtonType.Submit" Variant="Variant.Filled" style="background:#4CAF50" Class="ml-auto">Thêm</MudButton>
     <MudButton OnClick="AddProduct" ButtonType="ButtonType.Submit" Variant="Variant.Filled" style="background:#B71C1C" Class="ml-auto">Xóa</MudButton> *@
-</div>
-<MudTable Items="@products" Filter="new Func<Product,bool>(FilterFunc1)" Dense="true" Breakpoint="Breakpoint.None" Virtualize="true"
-Style="white-space:nowrap" Bordered="true" RowClass="cursor-pointer" Striped="true" Hover="true" HorizontalScrollbar="true">
-    <ToolBarContent>
-        <MudSpacer />
-        <MudTextField @bind-Value="searchString1" Placeholder="Tìm kiếm" Adornment="Adornment.Start"
-        AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
-    </ToolBarContent>
-    <HeaderContent>      
-        <MudTh>#</MudTh>
-        <MudTh>Tên</MudTh>
-        <MudTh>Giá bán</MudTh>
-        <MudTh>Tác giả</MudTh>
-        <MudTh>Danh mục</MudTh>
-        <MudTh>Nhà xuất bản</MudTh>
-        <MudTh>Số lượng</MudTh>
-        <MudTh>Ảnh bìa</MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="#">
+    </div>
+    <MudTable Items="@products" Filter="new Func<Product,bool>(FilterFunc1)" Dense="true" Breakpoint="Breakpoint.None" Virtualize="true"
+              Style="white-space:nowrap" Bordered="true" RowClass="cursor-pointer" Striped="true" Hover="true" HorizontalScrollbar="true">
+        <ToolBarContent>
+            <MudSpacer />
+            <MudTextField @bind-Value="searchString1" Placeholder="Tìm kiếm" Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>#</MudTh>
+            <MudTh>Tên</MudTh>
+            <MudTh>Giá bán</MudTh>
+            <MudTh>Tác giả</MudTh>
+            <MudTh>Danh mục</MudTh>
+            <MudTh>Nhà xuất bản</MudTh>
+            <MudTh>Số lượng</MudTh>
+            <MudTh>Ảnh bìa</MudTh>
+        </HeaderContent>
+        <RowTemplate>
             <MudTd DataLabel="#">
-                <input name="selected" type="checkbox"/>
+                <MudTd DataLabel="#">
+                    <input name="selected" type="checkbox" />
+                </MudTd>
+
             </MudTd>
+            <MudTd DataLabel="Tên"><div @onclick="@(() => DetailProduct(context.ProductId))">@context.ProductName</div></MudTd>
+            <MudTd DataLabel="Giá bán">
+                <div @onclick="@(() => DetailProduct(context.ProductId))">@string.Format(new CultureInfo("vi-VN"), "{0:N0}", context.SellPrice)</div>
+            </MudTd>
+            <MudTd DataLabel="Tác giả"><div @onclick="@(() => DetailProduct(context.ProductId))">@context.Author</div></MudTd>
+            <MudTd DataLabel="Danh mục">
+                <div @onclick="@(() => DetailProduct(context.ProductId))">
+                    @GetCategoryName(context.CategoryId)
+                </div>
+            </MudTd>
+            <MudTd DataLabel="Nhà xuất bản"><div @onclick="@(() => DetailProduct(context.ProductId))">@context.Publisher</div></MudTd>
+            <MudTd DataLabel="Số lượng"><div @onclick="@(() => DetailProduct(context.ProductId))">@context.Quantity</div></MudTd>
+            <MudTd DataLabel="Ảnh bìa">
+                <MudImage ObjectFit="ObjectFit.Cover" Width="50" Height="30" Src="@context.Img" Class="rounded-lg" />
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSize="10" @bind-PageIndex="@pageIndex" OnPageChanged="SetPage" />
+        </PagerContent>
+    </MudTable>
 
-        </MudTd>
-        <MudTd DataLabel="Tên"><div @onclick="@(() => DetailProduct(context.ProductId))">@context.ProductName</div></MudTd>
-        <MudTd DataLabel="Giá bán">
-            <div @onclick="@(() => DetailProduct(context.ProductId))">@string.Format(new CultureInfo("vi-VN"), "{0:N0}", context.SellPrice)</div>
-        </MudTd>
-        <MudTd DataLabel="Tác giả"><div @onclick="@(() => DetailProduct(context.ProductId))">@context.Author</div></MudTd>
-        <MudTd DataLabel="Danh mục">
-            <div @onclick="@(() => DetailProduct(context.ProductId))">
-                @GetCategoryName(context.CategoryId)
-            </div>
-        </MudTd>
-        <MudTd DataLabel="Nhà xuất bản"><div @onclick="@(() => DetailProduct(context.ProductId))">@context.Publisher</div></MudTd>
-        <MudTd DataLabel="Số lượng"><div @onclick="@(() => DetailProduct(context.ProductId))">@context.Quantity</div></MudTd>
-        <MudTd DataLabel="Ảnh bìa">
-            <MudImage ObjectFit="ObjectFit.Cover" Width="50" Height="30" Src="@context.Img" Class="rounded-lg" />
-        </MudTd>
-    </RowTemplate>
-    <PagerContent>
-        <MudTablePager PageSize="10" @bind-PageIndex="@pageIndex" OnPageChanged="SetPage" />
-    </PagerContent>
-</MudTable>
+    <MudSpacer />
+}
+else if (userRoleId == "1")
+{
+    <div style="display:flex; padding: 30px 30px 0 30px;">
+        <h2 style="font-family:Arial;">Danh sách sách</h2>
+        <MudSpacer></MudSpacer>
+        <MudButton OnClick="AddProduct" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Thêm</MudButton>
+        @* <MudButton OnClick="AddProduct" ButtonType="ButtonType.Submit" Variant="Variant.Filled" style="background:#4CAF50" Class="ml-auto">Thêm</MudButton>
+    <MudButton OnClick="AddProduct" ButtonType="ButtonType.Submit" Variant="Variant.Filled" style="background:#B71C1C" Class="ml-auto">Xóa</MudButton> *@
+    </div>
+    <MudTable Items="@products" Filter="new Func<Product,bool>(FilterFunc1)" Dense="true" Breakpoint="Breakpoint.None" Virtualize="true"
+              Style="white-space:nowrap" Bordered="true" RowClass="cursor-pointer" Striped="true" Hover="true" HorizontalScrollbar="true">
+        <ToolBarContent>
+            <MudSpacer />
+            <MudTextField @bind-Value="searchString1" Placeholder="Tìm kiếm" Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>#</MudTh>
+            <MudTh>Tên</MudTh>
+            <MudTh>Giá bán</MudTh>
+            <MudTh>Tác giả</MudTh>
+            <MudTh>Danh mục</MudTh>
+            <MudTh>Nhà xuất bản</MudTh>
+            <MudTh>Số lượng</MudTh>
+            <MudTh>Ảnh bìa</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="#">
+                <MudTd DataLabel="#">
+                    <input name="selected" type="checkbox" />
+                </MudTd>
 
-<MudSpacer />
+            </MudTd>
+            <MudTd DataLabel="Tên"><div @onclick="@(() => DetailProduct(context.ProductId))">@context.ProductName</div></MudTd>
+            <MudTd DataLabel="Giá bán">
+                <div @onclick="@(() => DetailProduct(context.ProductId))">@string.Format(new CultureInfo("vi-VN"), "{0:N0}", context.SellPrice)</div>
+            </MudTd>
+            <MudTd DataLabel="Tác giả"><div @onclick="@(() => DetailProduct(context.ProductId))">@context.Author</div></MudTd>
+            <MudTd DataLabel="Danh mục">
+                <div @onclick="@(() => DetailProduct(context.ProductId))">
+                    @GetCategoryName(context.CategoryId)
+                </div>
+            </MudTd>
+            <MudTd DataLabel="Nhà xuất bản"><div @onclick="@(() => DetailProduct(context.ProductId))">@context.Publisher</div></MudTd>
+            <MudTd DataLabel="Số lượng"><div @onclick="@(() => DetailProduct(context.ProductId))">@context.Quantity</div></MudTd>
+            <MudTd DataLabel="Ảnh bìa">
+                <MudImage ObjectFit="ObjectFit.Cover" Width="50" Height="30" Src="@context.Img" Class="rounded-lg" />
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSize="10" @bind-PageIndex="@pageIndex" OnPageChanged="SetPage" />
+        </PagerContent>
+    </MudTable>
+
+    <MudSpacer />
+}
+
+
 
 
 @code{
@@ -159,7 +227,27 @@ Style="white-space:nowrap" Bordered="true" RowClass="cursor-pointer" Striped="tr
     //         }
     //     }
     // }
+    private string userRoleId;
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            // Trích xuất RoleId từ Claims
+            userRoleId = user.Claims.FirstOrDefault(c => c.Type == "RoleId")?.Value;
+
+            // Debug thông tin RoleId
+            if (!string.IsNullOrEmpty(userRoleId))
+            {
+                Console.WriteLine($"RoleId: {userRoleId}");
+            }
+
+            StateHasChanged(); // Cập nhật giao diện
+        }
+    }
 }
 
  

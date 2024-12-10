@@ -4,8 +4,7 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject ISnackbar Snackbar
 @inject IJSRuntime JSRuntime
-<AuthorizeView>
-    <Authorized>
+
         <MudPaper Class="p-4">
             <MudText Typo="Typo.h5">Q&A</MudText>
 
@@ -83,18 +82,6 @@
             </MudList>
 
         </MudPaper>
-    </Authorized>
-    <NotAuthorized>
-
-        <h5>
-            Bạn cần
-            <a href="login" style="text-decoration: underline;">đăng nhập</a>
-            hoặc
-            <a href="register" style="text-decoration: underline;">đăng kí</a>
-            để xem trang này.
-        </h5>
-    </NotAuthorized>
-</AuthorizeView>
 @code {
     private List<BanSach.Components.Model.QNA> Questions = new List<BanSach.Components.Model.QNA>();
     private List<BanSach.Components.Model.QNA> FilteredQuestions = new List<BanSach.Components.Model.QNA>();

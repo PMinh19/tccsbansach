@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 
 
 using Microsoft.AspNetCore.Authentication.Cookies;
+using PayPalCheckoutSdk.Orders;
 
 
 
@@ -39,7 +40,7 @@ builder.Services.AddScoped<IQNAService, QNAService>();
 builder.Services.AddScoped<IBillService, BillService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IDiscountServicecs, DiscountService>();
-
+builder.Services.AddScoped<AdminAccountService>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -99,5 +100,14 @@ app.MapRazorPages(); // Để ánh xạ Razor Pages (Blazor)
 app.MapControllers(); // Để ánh xạ các API Endpoint
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode(); // Để ánh xạ Razor Components
-
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<AppDbContext>();
+    var adminAccountService = services.GetRequiredService<AdminAccountService>();
+    var adminExists = context.Users.Any(u => u.Email == "adminboss@gmail.com"); if (!adminExists)
+    {
+        adminAccountService.CreateAdminAccount().Wait();
+    }
+}
 app.Run();
